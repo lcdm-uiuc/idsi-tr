@@ -7,16 +7,17 @@
 \setboolean{shortarticle}{false}
 \setboolean{minireview}{false}
 
+%\newcommand{\comment}[1]{}
 % https://texblog.org/2007/11/07/headerfooter-in-latex-with-fancyhdr/
 % http://tex.stackexchange.com/questions/110451/inconsistent-margins-using-fancyhdr-and-geometry
 % http://tex.stackexchange.com/questions/266995/latex-error-option-clash-for-package-geometry
-
+% https://www.overleaf.com/latex/templates/latex-template-for-preparing-an-article-for-submission-to-optica/gmsbdqxbmntw#.WIJsurYrK34
 
 \renewcommand{\headrulewidth}{2pt}
 \fancypagestyle{plain}{%
   \fancyhead[L]{
     \begin{tabular}{ll}
-        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
+%        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
     \end{tabular}
   }
   \fancyhead[C]{
@@ -24,9 +25,10 @@
 		  	\fontsize{20}{20} Illinois Data Science Initiative    	
 		\end{tabular}
   }
+
   \fancyhead[R]{
     \begin{tabular}{ll}
-	  	\includegraphics[scale=0.125]{figs/ill}  		
+%	  	\includegraphics[scale=0.125]{figs/ill}  		
   	\end{tabular}
   }
   
