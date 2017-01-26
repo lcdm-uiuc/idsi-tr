@@ -1,17 +1,6 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
-
-\usepackage{graphicx}
-\usepackage{fancyhdr}
-\geometry{headheight=35pt}
-
-\setboolean{shortarticle}{false}
-\setboolean{minireview}{false}
-
-%\newcommand{\comment}[1]{}
-% https://texblog.org/2007/11/07/headerfooter-in-latex-with-fancyhdr/
-% http://tex.stackexchange.com/questions/110451/inconsistent-margins-using-fancyhdr-and-geometry
-% http://tex.stackexchange.com/questions/266995/latex-error-option-clash-for-package-geometry
-% https://www.overleaf.com/latex/templates/latex-template-for-preparing-an-article-for-submission-to-optica/gmsbdqxbmntw#.WIJsurYrK34
+% Defines a new command for the horizontal lines, change thickness here
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
 
 \renewcommand{\headrulewidth}{2pt}
 \fancypagestyle{plain}{%
@@ -34,22 +23,32 @@
   
   \fancyfoot[C]{\thepage}
 }
-
 \pagestyle{plain}
-
+\def \report_title {LaTeX Template For an iDSI Technical Report}
 \author[1]{Cameron Dart}
 \author[2]{The Big Dog}
 \affil[1]{National Center For Supercomputing Applications (NCSA)}
 \affil[2]{Laboratory for Computation, Data, and Machine Learning}
 \affil[3]{Illinois Data Science Initiative}
-\title{\LaTeX\ Template for an \emph{iDSI} Technical Report}
-
+\title{LaTeX Template For an iDSI Technical Report}
 
 \begin{abstract}
 Here is my very important research that I worked very hard on and because I am brilliant the work will you will read below will change your life in unimaginable ways. Well at least until you die, then it will change the lives of your posterity until the end of your family line.
 \end{abstract}
 
 \begin{document}
+
+\begin{titlepage}
+\center 
+\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
+\textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
+{\huge \bfseries LaTeX Template For an iDSI Technical Report } \\[0.4cm] \HRule \\[1.5cm]
+\Large \emph{Author:}\\ Cameron Dart\\[3cm]
+{\large \today}\\[3cm] % Date
+%\includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
+\vfill
+\end{titlepage}
+%\include{cover}
 
 \maketitle
 
@@ -146,9 +145,6 @@ For references, you may add citations manually or use BibTeX. E.g. \cite{Zhang:1
 Note that letter submissions to \emph{Optica} use an abbreviated reference style. Citations to journal articles should omit the article title and final page number; this abbreviated reference style is produced automatically when the \texttt{$\setminus$setboolean\{shortarticle\}\{true\}} option is selected in the template, if you are using a .bib file for your references. 
 
 However, full references (to aid the editor and reviewers) must be included as well on an informational page that will not count against page length; again this will be produced automatically if you are using a .bib file and have the \texttt{$\setminus$setboolean\{shortarticle\}\{true\}} option selected.
-
-
-
 
 
 \end{document}

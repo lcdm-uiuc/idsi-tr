@@ -15,6 +15,13 @@
 % This work consists of the files idsi.cls and pig.ins
 % and the derived file https://www.overleaf.com/latex/templates/latex-template-for-preparing-an-article-for-submission-to-optica/gmsbdqxbmntw#.WIgEobYrK37
 
+% Relevant Links
+% https://texblog.org/2007/11/07/headerfooter-in-latex-with-fancyhdr/
+% http://tex.stackexchange.com/questions/110451/inconsistent-margins-using-fancyhdr-and-geometry
+% http://tex.stackexchange.com/questions/266995/latex-error-option-clash-for-package-geometry
+% https://www.overleaf.com/latex/templates/latex-template-for-preparing-an-article-for-submission-to-optica/gmsbdqxbmntw#.WIJsurYrK34
+% http://www.latextemplates.com/template/university-assignment-title-page
+
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{idsi}[25/08/2016, v1.4]
@@ -43,7 +50,7 @@
 % Author and affiliation
 \RequirePackage{authblk}
 \setlength{\affilsep}{1em}
-\renewcommand\Authfont{\color{color2}\normalfont\sffamily\bfseries\scshape\fontsize{15}{17}\selectfont}
+\renewcommand\Authfont{\color{color0}\normalfont\sffamily\bfseries\scshape\fontsize{15}{17}\selectfont}
 \renewcommand\Affilfont{\color{color0}\normalfont\sffamily\itshape\fontsize{9}{11}\selectfont}
 
 % Options for element switching
@@ -306,3 +313,10 @@ THE ABSTRACT\vskip12pt}\let\go\relax\fi
 \setboolean{displaycopyright}{true}
 \doi{\url{https://github.com/lcdm-uiuc}}
 \dates{Compiled \today}
+
+%% Included packages
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\geometry{headheight=35pt}
+
+
