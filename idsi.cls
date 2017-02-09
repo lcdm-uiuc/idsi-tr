@@ -319,4 +319,16 @@ THE ABSTRACT\vskip12pt}\let\go\relax\fi
 \usepackage{fancyhdr}
 \geometry{headheight=35pt}
 
+\newcommand{\coverpage}[2]{
+\begin{titlepage}
+\center 
+\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
+\textsc{\Large Technical Report}\\[0.5cm] \HRule \\[0.4cm]
+{\huge \bfseries #1 } \\[0.4cm] \HRule \\[1.5cm]
+\Large \emph{Author:}\\ #2\\[3cm]
+{\large \today}\\[3cm] % Date
+
+\vfill
+\end{titlepage}
+}
 
