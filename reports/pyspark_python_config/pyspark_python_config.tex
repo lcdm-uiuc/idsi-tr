@@ -1,0 +1,75 @@
+\documentclass[9pt,twocolumn,twoside]{idsi}
+% Defines a new command for the horizontal lines, change thickness here
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
+
+\renewcommand{\headrulewidth}{2pt}
+\fancypagestyle{plain}{%
+  \fancyhead[L]{
+    \begin{tabular}{ll}
+       % \includegraphics[scale=0.15]{template/figs/ncsa_vertical} 
+    \end{tabular}
+  }
+  \fancyhead[C]{
+        \begin{tabular}[m]{c}
+        \fontsize{20}{20} Illinois Data Science Initiative      
+    \end{tabular}
+  }
+
+  \fancyhead[R]{
+    \begin{tabular}{ll}
+      % \includegraphics[scale=0.125]{template/figs/ill}      
+    \end{tabular}
+  }
+  
+  \fancyfoot[C]{\thepage}
+}
+\pagestyle{plain}
+\def \reporttitle {PySpark on Python 3: Configuration and Package Mangement Guide}
+\author[1]{Benjamin Congdon}
+\author[2]{The Big Dog}
+\affil[1]{National Center For Supercomputing Applications (NCSA)}
+\affil[2]{Laboratory for Computation, Data, and Machine Learning}
+\title{\reporttitle}
+
+\begin{abstract}
+PySpark requires requires Python 2.6 or later, and does not officially support Python 3. However, with only minor configuration changes, it is possible to successfully run a Spark cluster using Python 3 for both PySpark drivers and workers.
+\end{abstract}
+
+\begin{document}
+
+\begin{titlepage}
+\center 
+\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
+\textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
+{\huge \bfseries \reporttitle } \\[0.4cm] \HRule \\[1.5cm]
+\Large \emph{Author:}\\ Benjamin Congdon\\[3cm]
+{\large \today}\\[3cm] % Date
+% \includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
+\vfill
+\end{titlepage}
+\include{cover}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Assumptions}
+This technical report will make the assumption that you have already set up a Spark Cluster with a CentOS worker base image.
+
+\section{Examples of Article Components}
+\label{sec:examples}
+
+The sections below show examples of different article components.
+
+
+\section*{Funding Information}
+
+\section*{Acknowledgments}
+
+\section*{Supplemental Documents}
+
+
+\section*{References}
+
+
+\end{document}
