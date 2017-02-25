@@ -113,14 +113,16 @@ Finally, let's set up the environment variables for Spark and Python.
 
 Then, reload the environment:
 \begin{verbatim}
-source ~/.bashrc
+> source ~/.bashrc
 \end{verbatim}
 
 \section{Writing our first lines of PySpark}
 
 Once you've written your PySpark code, you can compile it with:
 \begin{verbatim}
-> spark-submit --master yarn-cluster --num-executors 10 MY_PYTHON_FILE.py
+> spark-submit --master yarn-cluster MY_PYTHON_FILE.py
 \end{verbatim}
+
+The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to decrease minimize runtime.
 
 \end{document}
