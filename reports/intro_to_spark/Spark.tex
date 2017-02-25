@@ -54,29 +54,35 @@ An introduction to using Apache Spark with Python by parsing tweets.
 
 \section{Spark Introduction: Why PySpark?}
 
-PySpark is an API that interfaces with RDD?s in Python. It is built on top of Spark?s Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
+PySpark is an API that interfaces with RDD's in Python. It is built on top of Spark's Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
 
 \section{Prerequisites to PySpark}
 
 Assume that the environment is a cluster with Hadoop installed. Verify that Java and Scala are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
 
+\section{Download and Install}
+
+\noindent
 Install Java on the system with:
 \begin{verbatim}
 > sudo yum install java-1.7.0-openjdk-devel
 \end{verbatim}
 
+\noindent
 Install Spark on the system with:
 \begin{verbatim}
 > wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm
 > sudo yum install scala-2.11.8.rpm
 \end{verbatim}
 
+\noindent
 Let's configure Spark to only show errors on startup, rather than all info. This will make the Spark shell less cluttered when it is opened on startup.
 \begin{verbatim}
 > cd /usr/hdp/2.3.6.0-3796/spark/conf
 > vi log4j.properties
 \end{verbatim}
 
+\noindent
 Find a line that describe the rootCategory of log:
 \begin{verbatim}
 log4j.rootCategory=INFO, console
@@ -96,6 +102,7 @@ Now let's ensure that python 2.7 is installed and configured.
 > yum -y install python-pip
 \end{verbatim}
 
+\noindent
 Finally, let's set up the environment variables for Spark and Python.
 \begin{verbatim}
 > vi ~/.bashrc
@@ -111,9 +118,9 @@ source ~/.bashrc
 
 \section{Writing our first lines of PySpark}
 
-Once you've written the your PySpark, you can compile it with:
+Once you've written your PySpark code, you can compile it with:
 \begin{verbatim}
-spark-submit --master yarn-cluster --num-executors 10 MY_PYTHON_FILE.py
+> spark-submit --master yarn-cluster --num-executors 10 MY_PYTHON_FILE.py
 \end{verbatim}
 
 \end{document}
