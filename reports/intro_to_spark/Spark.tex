@@ -66,8 +66,7 @@ PySpark is an API that interfaces with RDD's in Python. It is built on top of Sp
 
 \section{PySpark Prerequisites}
 
-Assume that the environment is a cluster with Hadoop installed. Verify that Java and Scala are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
-
+Assume that the environment is a cluster with Hadoop installed. Verify that Java, Scala, and Yarn are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
 \section{Installation}
 
 \noindent
@@ -82,6 +81,13 @@ Install Spark on the system by downloading the rpm. Here we will install spark-1
 > wget http://apache.mirrors.ionfish.org/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
 > tar -zxvf spark-1.6.0-bin-hadoop2.6.tgz
 > mv spark-1.6.0-bin-hadoop2.6 spark
+\end{lstlisting}
+
+\noindent
+To install yarn:
+\begin{lstlisting}[breaklines]
+> sudo wget https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
+> sudo yum install yarn
 \end{lstlisting}
 
 \noindent
