@@ -24,16 +24,17 @@
   \fancyfoot[C]{\thepage}
 }
 \pagestyle{plain}
-\def \report_title {Parsing Tweets using PySpark}
+\def \report_title {Setting up Spark for Python}
 \author[1]{Sameet Sapra}
 \author[2]{Joshua Chang}
+\author[3]{Professor Brunner}
 \affil[1]{National Center For Supercomputing Applications (NCSA)}
 \affil[2]{Laboratory for Computation, Data, and Machine Learning}
 \affil[3]{Illinois Data Science Initiative}
-\title{Parsing Tweets using PySpark}
+\title{Setting up Spark for Python}
 
 \begin{abstract}
-An introduction to using Apache Spark with Python by parsing tweets.
+An introduction to setting up Apache Spark with Python
 \end{abstract}
 
 \usepackage{listings}
@@ -43,8 +44,8 @@ An introduction to using Apache Spark with Python by parsing tweets.
 \center 
 \textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
 \textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
-{\huge \bfseries Parsing Tweets using PySpark } \\[0.4cm] \HRule \\[1.5cm]
-\Large \emph{Author:}\\ Sameet Sapra \& Joshua Chang\\[3cm]
+{\huge \bfseries Setting up Spark for Python } \\[0.4cm] \HRule \\[1.5cm]
+\Large \emph{Author:}\\ Sameet Sapra \& Joshua Chang \& Professor Brunner\\[3cm]
 {\large \today}\\[3cm] % Date
 %\includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
 \vfill
@@ -53,15 +54,21 @@ An introduction to using Apache Spark with Python by parsing tweets.
 
 \maketitle
 
-\section{Spark Introduction: Why PySpark?}
+\section{What is Apache Spark?}
+
+Apache Spark is a fast cluster computing system. Spark can be configured with multiple cluster managers like YARN, Mesos, Amazon EC2, or standalone mode. Along with that it can be configured in local mode and standalone mode. This technical report will install Spark on top of YARN.
+
+Spark supports many high level tools like GraphX and MLlib, for graphs processing and machine learning. It also has many APIs in Java, Scala, and Python, and we will go over PySpark, Python's API for Spark.
+
+\section{Why PySpark?}
 
 PySpark is an API that interfaces with RDD's in Python. It is built on top of Spark's Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
 
-\section{Prerequisites to PySpark}
+\section{PySpark Prerequisites}
 
 Assume that the environment is a cluster with Hadoop installed. Verify that Java and Scala are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
 
-\section{Download and Install}
+\section{Installation}
 
 \noindent
 Install Java on the system with:
@@ -70,11 +77,12 @@ Install Java on the system with:
 \end{verbatim}
 
 \noindent
-Install Spark on the system with:
-\begin{verbatim}
-> wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm
-> sudo yum install scala-2.11.8.rpm
-\end{verbatim}
+Install Spark on the system by downloading the rpm. Here we will install spark-1.6:
+\begin{lstlisting}[breaklines]
+> wget http://apache.mirrors.ionfish.org/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
+> tar -zxvf spark-1.6.0-bin-hadoop2.6.tgz
+> mv spark-1.6.0-bin-hadoop2.6 spark
+\end{lstlisting}
 
 \noindent
 Let's configure Spark to only show errors on startup, rather than all info. This will make the Spark shell less cluttered when it is opened on startup.
@@ -94,6 +102,11 @@ Replace INFO with ERROR:
 log4j.rootCategory=ERROR, console
 \end{verbatim}
 
+If all that worked, you should see the Spark shell start up when you type
+\begin{verbatim}
+> spark-shell
+\end{verbatim}
+
 \section{Setting up PySpark}
 
 Now let's ensure that python 2.7 is installed and configured.
@@ -106,7 +119,7 @@ Now let's ensure that python 2.7 is installed and configured.
 \noindent
 Finally, let's set up the environment variables for Spark and Python.
 \begin{verbatim}
-> vi ~/.bashrc
+> vi $HOME/.bashrc
 > export SPARK_HOME=/usr/hdp/2.3.6.0-3796/spark
 > export PYTHONPATH=$SPARK_HOME/python
 > export SPARK_HIVE=true
@@ -115,12 +128,18 @@ Finally, let's set up the environment variables for Spark and Python.
 \noindent
 Then, reload the environment:
 \begin{verbatim}
-> source ~/.bashrc
+> source $HOME/.bashrc
 \end{verbatim}
+
+Again, let's make sure Python is setup correctly. Type
+\begin{verbatim}
+> python
+\end{verbatim}
+You should see the Python REPL come up. Finally, we can start writing code in Python.
 
 \section{Writing our first lines of PySpark}
 
-This example is taken from the Apache Spark website. It runs a parallelized operation to compute the value of pi.
+This example is taken from the Apache Spark website. It runs a parallelized operation to compute the value of $\pi$ and is a good example to see the benefits of Spark.
 \begin{lstlisting}[language=python]
 def inside(p):
     x, y = random.random(), random.random()
@@ -131,8 +150,7 @@ count = sc.parallelize(xrange(0, NUM_SAMPLES)) \
 print "Pi is roughly %f" % (4.0 * count / NUM_SAMPLES)
 \end{lstlisting}
 
-
-Once you've written your PySpark code, you can compile and deploy it with:
+Once you've written your Python code, you can compile and deploy it with:
 \begin{verbatim}
 > spark-submit --master yarn-cluster MY_PYTHON_FILE.py
 \end{verbatim}
@@ -140,5 +158,8 @@ Once you've written your PySpark code, you can compile and deploy it with:
 \noindent
 The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to decrease minimize runtime.
 
+\section{Conclusion}
+
+This technical report serves as a guide to set up an environment to run Spark on HDFS and write some simple Python code to take advantage of Spark using PySpark.
 
 \end{document}
