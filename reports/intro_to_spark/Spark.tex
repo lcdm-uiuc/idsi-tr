@@ -28,9 +28,6 @@
 \author[1]{Sameet Sapra}
 \author[2]{Joshua Chang}
 \author[3]{Professor Brunner}
-\affil[1]{National Center For Supercomputing Applications (NCSA)}
-\affil[2]{Laboratory for Computation, Data, and Machine Learning}
-\affil[3]{Illinois Data Science Initiative}
 \title{Setting up Spark for Python}
 
 \begin{abstract}
@@ -56,9 +53,9 @@ An introduction to setting up Apache Spark with Python
 
 \section{What is Apache Spark?}
 
-Apache Spark is a fast cluster computing system. Spark can be configured with multiple cluster managers like YARN, Mesos, Amazon EC2, or standalone mode. Along with that it can be configured in local mode and standalone mode. This technical report will install Spark on top of YARN.
+Apache Spark is a fast cluster computing system. Spark can be configured with multiple cluster managers like Yarn, Mesos, Amazon EC2, or standalone mode. This technical report will install Spark on top of Yarn because Hadoop MapReduce is a feature that ships with Yarn.
 
-Spark supports many high level tools like GraphX and MLlib, for graphs processing and machine learning. It also has many APIs in Java, Scala, and Python, and we will go over PySpark, Python's API for Spark.
+Spark supports many high level tools like GraphX and MLlib, for graphs processing and machine learning. It also has many APIs in Java, Scala, and Python, and we will install and configure the Java APIs and PySpark, Python's API for Spark.
 
 \section{Why PySpark?}
 
@@ -66,28 +63,57 @@ PySpark is an API that interfaces with RDD's in Python. It is built on top of Sp
 
 \section{PySpark Prerequisites}
 
-Assume that the environment is a cluster with Hadoop installed. Verify that Java, Scala, and Yarn are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
-\section{Installation}
+Assume that the environment is CentOS. While many Spark tutorials will cover installation of Java, Scala, Python, or any other API languages, we can verify that Java and Yarn are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
 
+\section{Installation: Hadoop with Yarn}
 \noindent
-Install Java on the system with:
+You can install Java on the system with:
 \begin{verbatim}
 > sudo yum install java-1.7.0-openjdk-devel
 \end{verbatim}
 
 \noindent
-Install Spark on the system by downloading the rpm. Here we will install spark-1.6:
+Next we will install Hadoop, since Yarn ships with it. To install Hadoop, we will create a Hadoop user account, install Hadoop, and set environment variables:
+
+\begin{lstlisting}[breaklines]
+> useradd -d /opt/hadoop hadoop
+> passwd hadoop
+> curl -O http://apache.javapipe.com/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz 
+> tar xfz hadoop-2.7.2.tar.gz
+> cp -rf hadoop-2.7.2/* /opt/hadoop/
+> chown -R hadoop:hadoop /opt/hadoop/
+> su - hadoop
+\end{lstlisting}
+
+Open up the $.bashrc$ file and set the following environment variables:
+\begin{lstlisting}[breaklines]
+> vi .bashrc
+
+export HDP=/usr/hdp/current/hadoop-mapreduce-client
+export STREAMING=/usr/hdp/current/hadoop-mapreduce-client/hadoop-streaming.jar
+export EXAMPLES=/usr/hdp/current/hadoop-mapreduce-client/hadoop-mapreduce-examples.jar
+export MAP=yarn
+\end{lstlisting}
+
+Exit out and reload the bashrc with:
+\begin{verbatim}
+> source $HOME/.bash_profile
+\end{verbatim}
+
+To test that it is running correctly, try creating a random directory in the HDFS file system:
+\begin{verbatim}
+> hdfs dfs -mkdir /my_storage
+\end{verbatim}
+
+Exit out of the hadoop user role. Now we will move onto installing Spark.
+
+\section{Installation: Spark}
+\noindent
+Install Spark on the system by downloading the rpm and moving it to the correct location in your path environment variable. Here we will install spark-1.6:
 \begin{lstlisting}[breaklines]
 > wget http://apache.mirrors.ionfish.org/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
 > tar -zxvf spark-1.6.0-bin-hadoop2.6.tgz
 > mv spark-1.6.0-bin-hadoop2.6 spark
-\end{lstlisting}
-
-\noindent
-To install yarn:
-\begin{lstlisting}[breaklines]
-> sudo wget https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
-> sudo yum install yarn
 \end{lstlisting}
 
 \noindent
@@ -115,7 +141,7 @@ If all that worked, you should see the Spark shell start up when you type
 
 \section{Setting up PySpark}
 
-Now let's ensure that python 2.7 is installed and configured.
+Now let's ensure that Python 2.7 is installed and configured.
 \begin{verbatim}
 > yum install -y centos-release-SCL
 > yum install -y python27
@@ -146,7 +172,8 @@ You should see the Python REPL come up. Finally, we can start writing code in Py
 \section{Writing our first lines of PySpark}
 
 This example is taken from the Apache Spark website. It runs a parallelized operation to compute the value of $\pi$ and is a good example to see the benefits of Spark.
-\begin{lstlisting}[language=python]
+
+\begin{lstlisting}[language=Python]
 def inside(p):
     x, y = random.random(), random.random()
     return x*x + y*y < 1
@@ -162,10 +189,10 @@ Once you've written your Python code, you can compile and deploy it with:
 \end{verbatim}
 
 \noindent
-The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to decrease minimize runtime.
+The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to minimize the runtime.
 
 \section{Conclusion}
 
-This technical report serves as a guide to set up an environment to run Spark on HDFS and write some simple Python code to take advantage of Spark using PySpark.
+This technical report serves as a guide to set up an environment to run Spark on HDFS and write some simple Python code to take advantage of Spark using PySpark. With this setup, you can now take advantage of Spark's Resilient Distributed Datasets and have the data stored in memory and more quickly accessible.
 
 \end{document}
