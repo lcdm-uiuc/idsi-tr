@@ -1,0 +1,119 @@
+\documentclass[9pt,twocolumn,twoside]{idsi}
+% Defines a new command for the horizontal lines, change thickness here
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
+
+\renewcommand{\headrulewidth}{2pt}
+\fancypagestyle{plain}{%
+  \fancyhead[L]{
+    \begin{tabular}{ll}
+%        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
+    \end{tabular}
+  }
+  \fancyhead[C]{
+      	\begin{tabular}[m]{c}
+		  	\fontsize{20}{20} Illinois Data Science Initiative    	
+		\end{tabular}
+  }
+
+  \fancyhead[R]{
+    \begin{tabular}{ll}
+%	  	\includegraphics[scale=0.125]{figs/ill}  		
+  	\end{tabular}
+  }
+  
+  \fancyfoot[C]{\thepage}
+}
+\pagestyle{plain}
+\def \report_title {Parsing Tweets using PySpark}
+\author[1]{Sameet Sapra}
+\author[2]{Joshua Chang}
+\affil[1]{National Center For Supercomputing Applications (NCSA)}
+\affil[2]{Laboratory for Computation, Data, and Machine Learning}
+\affil[3]{Illinois Data Science Initiative}
+\title{Parsing Tweets using PySpark}
+
+\begin{abstract}
+An introduction to using Apache Spark with Python by parsing tweets.
+\end{abstract}
+
+\begin{document}
+
+\begin{titlepage}
+\center 
+\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
+\textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
+{\huge \bfseries Parsing Tweets using PySpark } \\[0.4cm] \HRule \\[1.5cm]
+\Large \emph{Author:}\\ Sameet Sapra \& Joshua Chang\\[3cm]
+{\large \today}\\[3cm] % Date
+%\includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
+\vfill
+\end{titlepage}
+%\include{cover}
+
+\maketitle
+
+\section{Spark Introduction: Why PySpark?}
+
+PySpark is an API that interfaces with RDD?s in Python. It is built on top of Spark?s Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
+
+\section{Prerequisites to PySpark}
+
+Assume that the environment is a cluster with Hadoop installed. Verify that Java and Scala are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
+
+Install Java on the system with:
+\begin{verbatim}
+> sudo yum install java-1.7.0-openjdk-devel
+\end{verbatim}
+
+Install Spark on the system with:
+\begin{verbatim}
+> wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm
+> sudo yum install scala-2.11.8.rpm
+\end{verbatim}
+
+Let's configure Spark to only show errors on startup, rather than all info. This will make the Spark shell less cluttered when it is opened on startup.
+\begin{verbatim}
+> cd /usr/hdp/2.3.6.0-3796/spark/conf
+> vi log4j.properties
+\end{verbatim}
+
+Find a line that describe the rootCategory of log:
+\begin{verbatim}
+log4j.rootCategory=INFO, console
+\end{verbatim}
+
+Replace INFO with ERROR:
+\begin{verbatim}
+log4j.rootCategory=ERROR, console
+\end{verbatim}
+
+\section{Setting up PySpark}
+
+Now let's ensure that python 2.7 is installed and configured.
+\begin{verbatim}
+> yum install -y centos-release-SCL
+> yum install -y python27
+> yum -y install python-pip
+\end{verbatim}
+
+Finally, let's set up the environment variables for Spark and Python.
+\begin{verbatim}
+> vi ~/.bashrc
+> export SPARK_HOME=/usr/hdp/2.3.6.0-3796/spark
+> export PYTHONPATH=$SPARK_HOME/python
+> export SPARK_HIVE=true
+\end{verbatim}
+
+Then, reload the environment:
+\begin{verbatim}
+source ~/.bashrc
+\end{verbatim}
+
+\section{Writing our first lines of PySpark}
+
+Once you've written the your PySpark, you can compile it with:
+\begin{verbatim}
+spark-submit --master yarn-cluster --num-executors 10 MY_PYTHON_FILE.py
+\end{verbatim}
+
+\end{document}
