@@ -36,6 +36,7 @@
 An introduction to using Apache Spark with Python by parsing tweets.
 \end{abstract}
 
+\usepackage{listings}
 \begin{document}
 
 \begin{titlepage}
@@ -111,6 +112,7 @@ Finally, let's set up the environment variables for Spark and Python.
 > export SPARK_HIVE=true
 \end{verbatim}
 
+\noindent
 Then, reload the environment:
 \begin{verbatim}
 > source ~/.bashrc
@@ -118,11 +120,25 @@ Then, reload the environment:
 
 \section{Writing our first lines of PySpark}
 
-Once you've written your PySpark code, you can compile it with:
+This example is taken from the Apache Spark website. It runs a parallelized operation to compute the value of pi.
+\begin{lstlisting}[language=python]
+def inside(p):
+    x, y = random.random(), random.random()
+    return x*x + y*y < 1
+
+count = sc.parallelize(xrange(0, NUM_SAMPLES)) \
+             .filter(inside).count()
+print "Pi is roughly %f" % (4.0 * count / NUM_SAMPLES)
+\end{lstlisting}
+
+
+Once you've written your PySpark code, you can compile and deploy it with:
 \begin{verbatim}
 > spark-submit --master yarn-cluster MY_PYTHON_FILE.py
 \end{verbatim}
 
+\noindent
 The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to decrease minimize runtime.
+
 
 \end{document}
