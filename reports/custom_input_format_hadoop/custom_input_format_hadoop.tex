@@ -33,7 +33,7 @@
 \title{Processing Custom Input Formats With Hadoop}
 
 \begin{abstract}
-I don't know what goes here
+By implementing our own FileInputFormat and RecordReader for MapReduce, we can gain control over how Hadoop reads file, constructs input splits, and builds key-value pairs for the mapper.
 \end{abstract}
 
 \begin{document}
@@ -53,7 +53,7 @@ I don't know what goes here
 \maketitle
 
 \section{Introduction}
-Hadoop includes a collection of input formats (DBInputFormat, KeyValueTextInputFormat, NLineInputFormat, etc...) used to read data files in those respective forms. Typically, Hadoop MapReduce jobs split input data into individual sections, operating on each separately. In some cases, it becomes necessary to customize input splits and/or read files in obscure formats. Specifically, in this report we will write custom FileInputFormat and RecordReader classes to read entire files at once.
+Hadoop includes a collection of input formats (DBInputFormat, KeyValueTextInputFormat, NLineInputFormat, etc...) used to read data files in those respective forms. Typically, Hadoop MapReduce jobs split input data into individual sections, operating on each separately. In some cases, it becomes necessary to customize input splits and/or read files in obscure formats. Specifically, in this report we will write our own FileInputFormat and RecordReader classes to read entire files at once.
 
 \section{Assumptions}
 This technical report assumes:
