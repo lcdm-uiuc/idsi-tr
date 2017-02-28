@@ -54,7 +54,7 @@ Fabric provides a lightweight framework for running administrative tasks on clus
 \maketitle
 
 \section{Introduction}
-Fabric is an incredibly useful and versitile tool for cluster management. Unlike other orchestration providers like Puppet, Fabric doesn't require that it 'own' all the infrastructure it manages. Fabric's approach is the opposite: it simply allows cluster operators to automate aspects of the jobs they already do by constructing scripts from a bottom-up approach. Thus, Fabric can be used to bootstrap existing clusters, as well as aid in setting up and configuring new ones.
+Fabric is an incredibly useful and versatile tool for cluster management. Unlike other orchestration providers like Puppet, Fabric doesn't require that it 'own' all the infrastructure it manages. Fabric's approach is the opposite: it simply allows cluster operators to automate aspects of the jobs they already do by constructing scripts from a bottom-up approach. Thus, Fabric can be used to bootstrap existing clusters, as well as aid in setting up and configuring new ones.
 
 Additionally, Fabric has a \emph{"it's just Python"} approach to scripting, allowing virtually limitless options for making advanced orchestration scripts.
 
@@ -80,11 +80,11 @@ Once these dependencies have been installed, simply run \emph{pip install fabric
 Then, open a Python interpreter and run \texttt{import fabric} to ensure it has installed correctly.
 
 \section{Fabric Ideology}
-Fabric is, at its core, an automation layer on top of SSH. Its analogous to a Pythonic, scriptable version of \texttt{clusterssh}. When you run the Fabric command, \texttt{fab}, you select a task included in your Fabric configuration file (the \emph{"Fabfile"}). Fabric then opens a SSH shell to all the hosts specified and executes the given task on all the hosts. This Fabric task ususally consists of several common SSH actions (creating files, running commands, starting scripts, etc.) chained together. The output of these actions is, by default, piped back to the Fabric user so they can observe the execution of the commands.
+Fabric is, at its core, an automation layer on top of SSH. Its analogous to a Pythonic, scriptable version of \texttt{clusterssh}. When you run the Fabric command, \texttt{fab}, you select a task included in your Fabric configuration file (the \emph{"Fabfile"}). Fabric then opens a SSH shell to all the hosts specified and executes the given task on all the hosts. This Fabric task usually consists of several common SSH actions (creating files, running commands, starting scripts, etc.) chained together. The output of these actions is, by default, piped back to the Fabric user so they can observe the execution of the commands.
 
 Thus, Fabric - and Python, for that matter - need only be installed on the nodes that you initiate these orchestration events from. The hosts that you run Fabric commands on only 'see' Fabric as an SSH client.
 
-Fabric is compatible with most methods of authenitcation to hosts (user/password or SSH keys), which allows proper security procedures to be observed while executing tasks on the cluster.
+Fabric is compatible with most methods of authentication to hosts (user/password or SSH keys), which allows proper security procedures to be observed while executing tasks on the cluster.
 
 \section{Writing a 'Fabfile'}
 Fabric commands are written in a Python module called a \emph{Fabfile}. When the \texttt{fab} command is run (to execute a Fabric command), Fabric looks for a \texttt{fabfile} module in the current directory. To begin, this can be as simple has a single file, \texttt{fabfile.py}. However, as a project scales, this can be expanded into a full Python module, allowing scalable project organization.
@@ -121,20 +121,20 @@ Additionally, it's worth noting the \emph{fail-fast} approach that Fabric takes.
 \subsection{Decorators}
 Fabric tasks can be defined simply as functions in the \emph{fabfile}. Fabric also includes a few useful decorators to alter the default execution behavior of the task functions:
 \begin{itemize}
-  \item \texttt{@serial} - Run the task serially accross hosts by default. (Finish the execution on one host before starting on the next host.)
-  \item \texttt{@parallel} - Run the task in parallel accross hosts by default. (Start the execution on many hosts simultaneously, and continue execution in parallel.)
+  \item \texttt{@serial} - Run the task serially across hosts by default. (Finish the execution on one host before starting on the next host.)
+  \item \texttt{@parallel} - Run the task in parallel across hosts by default. (Start the execution on many hosts simultaneously, and continue execution in parallel.)
   \item \texttt{@task} - Explicitly declare the function as a task. (Useful in larger \emph{fabfile} modules)
 \end{itemize}
 
 \section{Executing Fabric Tasks}
-The simplest way to run a Fabric command, as discussed previously, is \texttt{fab <TASK\_NAME>}. However, Fabric execution can be extended and customized to increase its usefullness.
+The simplest way to run a Fabric command, as discussed previously, is \texttt{fab <TASK\_NAME>}. However, Fabric execution can be extended and customized to increase its usefulness.
 
-For example, \texttt{fab <TASK1> <TASK2>} chains two tasks together, allowing the composition of more advanced workflows.
+For example, \texttt{fab <TASK1> <TASK2>} chains two tasks together, allowing the composition of more advanced work-flows.
 
 The following sections will discuss a variety of techniques useful in the execution of Fabric tasks. 
 
 \subsection{Specifying Hosts}
-The simplist means for providing Fabric with a list of hosts is by passing them in as a comma-separated list following the \texttt{-H} flag. However, Fabric also allows you to progamatically set the list of hosts by altering the list of hosts in \texttt{fabric.env.hosts}.
+The simplest means for providing Fabric with a list of hosts is by passing them in as a comma-separated list following the \texttt{-H} flag. However, Fabric also allows you to progamatically set the list of hosts by altering the list of hosts in \texttt{fabric.env.hosts}.
 
 For version-controlled maintainability, we tend to keep out list of cluster nodes in a text file and load in this list at runtime in a manner as follows:
 \begin{lstlisting}[language=Python, showstringspaces=false]
@@ -144,17 +144,17 @@ env.hosts = open('hosts').readlines()
 
 One can also imagine that it would be useful to programatically pull down a list of hosts from a cluster management tool like Apache Ambari, and set Fabric's host list automatically.
 
-Fabric also has the concept of host "roles". Roles allow hosts to be treated differently by Fabric based on their type (i.e. a database host may recieve a different set of commands than a web server host for a given command, or a task may only be applicable to one set of hosts because of their role). However, for our purposes we assume relative homogenaity within cluster nodes, so this feature has limited use.
+Fabric also has the concept of host "roles". Roles allow hosts to be treated differently by Fabric based on their type (i.e. a database host may receive a different set of commands than a web server host for a given command, or a task may only be applicable to one set of hosts because of their role). However, for our purposes we assume relative homogeneity within cluster nodes, so this feature has limited use.
 
 \subsection{Authentication}
 \subsubsection{SSH}
 An SSH key may be specified with \texttt{-i <KEY\_FILE>}. Note that you may have to change your hostnames to be in the form \texttt{USERNAME@hostname} in order to select the right user to login as.
 
 \subsubsection{User Password}
-Passwords may either be specified by \texttt{-I} for a password prompt at execution (reccomended), or with \texttt{-\--password} to pass the password as part of the command. There are more involved options for specifying per-host passwords that are documented well in the Fabric documentation.
+Passwords may either be specified by \texttt{-I} for a password prompt at execution (recommended), or with \texttt{-\--password} to pass the password as part of the command. There are more involved options for specifying per-host passwords that are documented well in the Fabric documentation.
 
 \subsection{Parallel Execution}
-By default, Fabric runs tasks in serial accross hosts. So, if we run the example \texttt{fab update} command, it will start the upupdate the first host, wait until that update has completed, and repeat that process on successive hosts until completion.
+By default, Fabric runs tasks in serial across hosts. So, if we run the example \texttt{fab update} command, it will start the update the first host, wait until that update has completed, and repeat that process on successive hosts until completion.
 
 For many tasks, it saves a lot of time to run in parallel. This can be accomplished by using the \texttt{-P} flag when executing the command, or by adding the \texttt{@parallel} decorator, as alluded to previously.
 
@@ -169,6 +169,6 @@ While Fabric can be used to automate many common cluster management tasks, we ha
 The LCDM Github organization has a repository containing the Fabfiles used to manage our cluster, which you may find useful in constructing your own Fabfiles.
 
 \section{Conclusion}
-Fabric is a powerful infrastructure orchestration tool that allows for workflows of varying complexities. It has relatively few dependencies or infrastructure constraints and allows for heavily customizable patterns of task execution. Fabric's light footprint and scalable configuration allows it to be a good candidate for initial cluster management, and bootstrapping automation of existing clusters.
+Fabric is a powerful infrastructure orchestration tool that allows for work-flows of varying complexities. It has relatively few dependencies or infrastructure constraints and allows for heavily customizable patterns of task execution. Fabric's light footprint and scalable configuration allows it to be a good candidate for initial cluster management, and bootstrapping automation of existing clusters.
 
 \end{document}
