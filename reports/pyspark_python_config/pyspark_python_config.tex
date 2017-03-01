@@ -1,4 +1,5 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
+\usepackage{listings}
 % Defines a new command for the horizontal lines, change thickness here
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
 
@@ -24,9 +25,9 @@
   \fancyfoot[C]{\thepage}
 }
 \pagestyle{plain}
-\def \reporttitle {PySpark on Python 3: Configuration and Package Mangement Guide}
+\def \reporttitle {PySpark on Python 3: Configuration and Package Management Guide}
 \author[1]{Benjamin Congdon}
-\author[2]{The Big Dog}
+\author[2]{Professor Robert J. Brunner}
 \affil[1]{National Center For Supercomputing Applications (NCSA)}
 \affil[2]{Laboratory for Computation, Data, and Machine Learning}
 \title{\reporttitle}
@@ -52,22 +53,73 @@ PySpark requires requires Python 2.6 or later, and does not officially support P
 \maketitle
 
 \section{Introduction}
+This technical report will describe a process for upgrading a Spark Cluster to operate with Python 3 as the version of Python used on worker instances and the PySpark driver. Additionally, this report will suggest a maintainable method for installing and upgrading a set of Python packages on a Spark Cluster for use in PySpark jobs.
 
 \section{Assumptions}
-This technical report will make the assumption that you have already set up a Spark Cluster with a CentOS worker base image.
+This technical report will make the following assumptions:
+\begin{itemize}
+  \item The implementer already has a working Spark Cluster with a CentOS worker base image.
+  \item Ideally, the Spark Cluster is managed by Apache Ambari. (This report will still contain valid information for non-Ambari-managed clusters, but the configuration files will have to be manually adjusted on every node).
+\end{itemize}
 
-\section{Examples of Article Components}
-\label{sec:examples}
+\section{Motivation}
+While Python 3 is not yet the \emph{defacto} standard in the Python community, the trend seams to be moving in the direction of Python 3 adoption. Thus, it behooves members of the data science community to begin to transition to Python 3 for cloud computing.
 
-The sections below show examples of different article components.
+Additionally, we observed that running the default Python version that shipped with our CentOS image, Python 2.6.6, had many more issues being installed concurrently with Python 2.7 than any version of Python 3. PySpark requires Python 2.7+, and Ambari requires Python 2.6.6. As a result, we found that a more stable equilibrium was met while running our PySpark workers on Python 3 and leaving the Python 2.* installation on the workers undisturbed.
 
+Furthermore, we researched the available solutions for maintaining and distributing Python packages across our cluster, and felt that the built-in mechanisms for distributing packages at runtime (i.e. the \texttt{-\--py-files} argument for spark-submit) to be lacking. Not only does this require the operator to have built-versions of all the packages they wish to include in their job, but it also means that using packages like \texttt{nltk}, which download external datasets, are difficult to include in jobs.
+
+\section{Installing Python 3}
+To run the Spark Cluster on top of Python 3, an identical version Python 3 should be installed on all data nodes, and anywhere that a driver will be run.
+
+While this can be accomplished in a variety of ways, we suggest that you use Fabric to perform the operation. A link to the Fabfile used to install Python 3 is included in the references of this technical report.
+
+\section{Configuring PySpark to run Python 3}
+
+There are 2 primary configuration settings necessary to configure PySpark to work with Python 3: \texttt{PYSPARK\_PYTHON} and \texttt{PYSPARK\_DRIVER\_PYTHON}. The former dictates the path to the Python executable used for the workers, and the latter dictates the path to the Python executable used for the client driver, when applicable.
+
+When running in a \emph{client} mode, these variables can be set as environment variables on the node being used as the client driver. However, when PySpark is used in a \emph{cluster} mode, this setting must be configured in the Spark configuration.
+
+There is one additional complication due to the way that Python 3 handles hashing. Python 3 introduces randomness into its hashes to prevent hashing DoS attacks. However, in our parallel computing, we need nodes to agree on the hash seed. Thus, we must also configure \texttt{PYTHON\_HASH\_SEED} to be identical on all nodes in the cluster.
+
+To make the relevant changes to your Spark configuration, go to the Ambari Dashboard and navigate to \emph{Services > Spark > Configs}.
+
+Add the following entries to \emph{spark-env template}:
+
+\begin{lstlisting}
+export PYSPARK_PYTHON=/usr/bin/python3
+export PYSPARK_DRIVER_PYTHON=/usr/bin/python3
+export PYTHONHASHSEED=123
+\end{lstlisting}
+
+Add the following entries to \emph{Custom spark-defaults}
+\begin{itemize}
+  \item spark.executorEnv.PYTHONHASHSEED $\rightarrow$ 0
+
+  \item spark.pyspark.driver.python $\rightarrow$ /usr/bin/python3
+
+  \item spark.pyspark.python $\rightarrow$ /usr/bin/python3
+
+  \item spark.yarn.appMasterEnv.PYSPARK\_DRIVER\_PYTHON $\rightarrow$ /usr/bin/python3
+
+  \item spark.yarn.appMasterEnv.PYSPARK\_PYTHON $\rightarrow$ /usr/bin/python3
+\end{itemize}
+
+Note that \emph{/usr/bin/python3} is the default install location for most Python 3 installations (including the CentOS package). However, if you have Python 3 installed at a different location, you will have to adjust this path as necessary.
+
+\section{Installing and Updating Packages}
+
+Python maintaines a store of system \emph{site-packages}. To use these packages in your PySpark jobs, each package you want to import will have to be installed on all nodes.
+
+We reccomend using Fabric to manage Python package distributions.
+
+\section{Conclusion}
 
 \section*{Funding Information}
 
 \section*{Acknowledgments}
 
 \section*{Supplemental Documents}
-
 
 \section*{References}
 
