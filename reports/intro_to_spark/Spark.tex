@@ -61,11 +61,15 @@ Spark supports many high level tools like GraphX and MLlib, for graphs processin
 
 PySpark is an API that interfaces with RDD's in Python. It is built on top of Spark's Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
 
+Additionally, Python allows for community data science packages to be used in the context of cloud computing. This ensures that the language does not become outdated and receives continuous support from the community.
+
 \section{PySpark Prerequisites}
 
-Assume that the environment is CentOS. While many Spark tutorials will cover installation of Java, Scala, Python, or any other API languages, we can verify that Java and Yarn are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
+Installation will occur under a RedHat variant of Linux. While many Spark tutorials will cover installation of Java, Scala, Python, or any other API languages, we can verify that Java and Yarn are installed by checking the versions. If they are installed, skip to the Spark configuration steps, otherwise follow the installation instructions given below.
 
 \section{Installation: Hadoop with Yarn}
+If an older version of Java is already installed (1.5 and above), then skip to the Hadoop installation section.
+
 \noindent
 You can install Java on the system with:
 \begin{verbatim}
@@ -94,6 +98,8 @@ export STREAMING=/usr/hdp/current/hadoop-mapreduce-client/hadoop-streaming.jar
 export EXAMPLES=/usr/hdp/current/hadoop-mapreduce-client/hadoop-mapreduce-examples.jar
 export MAP=yarn
 \end{lstlisting}
+
+These environment variables will setup the paths so that Hadoop can find the appropriate streaming and example libraries, as well as Hadoop's MapReduce client.
 
 Exit out and reload the bashrc with:
 \begin{verbatim}
@@ -147,13 +153,14 @@ Now let's ensure that Python 2.7 is installed and configured.
 > yum install -y python27
 > yum -y install python-pip
 \end{verbatim}
+Note that this will change the version of Python on the PATH to default to 2.7.
 
 \noindent
 Finally, let's set up the environment variables for Spark and Python.
 \begin{verbatim}
 > vi $HOME/.bashrc
 > export SPARK_HOME=/usr/hdp/2.3.6.0-3796/spark
-> export PYTHONPATH=$SPARK_HOME/python
+> export PYTHONPATH=$SPARK_HOME/python2.7
 > export SPARK_HIVE=true
 \end{verbatim}
 
@@ -167,7 +174,7 @@ Again, let's make sure Python is setup correctly. Type
 \begin{verbatim}
 > python
 \end{verbatim}
-You should see the Python REPL come up. Finally, we can start writing code in Python.
+You should see the Python REPL come up with the version that was just installed (2.7). Finally, we can start writing code in Python.
 
 \section{Writing our first lines of PySpark}
 
@@ -178,9 +185,11 @@ def inside(p):
     x, y = random.random(), random.random()
     return x*x + y*y < 1
 
-count = sc.parallelize(xrange(0, NUM_SAMPLES)) \
+sample_len = xrange(0, NUM_SAMPLES)
+count = sc.parallelize(sample_len) \
              .filter(inside).count()
-print "Pi is roughly %f" % (4.0 * count / NUM_SAMPLES)
+pi_approx = (4.0 * count / NUM_SAMPLES)
+print "Pi is roughly %f" % pi_Approx
 \end{lstlisting}
 
 Once you've written your Python code, you can compile and deploy it with:
@@ -189,7 +198,9 @@ Once you've written your Python code, you can compile and deploy it with:
 \end{verbatim}
 
 \noindent
-The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to minimize the runtime.
+Note that MY_PYTHON_FILE.py needs to be an executable so that Spark can recognize it.
+
+The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specify how many executors, the objects responsible for executing tasks, are to be used. Using as many executors as data nodes is recommended to minimize the runtime. Using the smallest sized executor as possible would lose the benefits of running tasks simultaneously in the same Java Virtual Machine. It is important to pick executors such that you leave overhead memory for the operating system and heap memory for Hadoop. It's best to keep up to 5 cores per executor for the maximum HDFS output. 
 
 \section{Conclusion}
 
