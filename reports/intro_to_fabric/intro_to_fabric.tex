@@ -76,13 +76,22 @@ As Fabric heavily leverages SSH, it has some extra dependencies that may not be 
   \item openssl-devel
 \end{itemize}
 
-Once these dependencies have been installed, simply run \emph{pip install fabric} to install the Fabric package.
+Once these dependencies have been installed, we can install the Fabric package with: 
+\begin{verbatim}
+$ pip install fabric
+\end{verbatim}
 Then, open a Python interpreter and run \texttt{import fabric} to ensure it has installed correctly.
+
+\begin{verbatim}
+$ python
+>>> import fabric
+>>> 
+\end{verbatim}
 
 \section{Fabric Ideology}
 Fabric is, at its core, an automation layer on top of SSH. Its analogous to a Pythonic, scriptable version of \texttt{clusterssh}. When you run the Fabric command, \texttt{fab}, you select a task included in your Fabric configuration file (the \emph{"Fabfile"}). Fabric then opens a SSH shell to all the hosts specified and executes the given task on all the hosts. This Fabric task usually consists of several common SSH actions (creating files, running commands, starting scripts, etc.) chained together. The output of these actions is, by default, piped back to the Fabric user so they can observe the execution of the commands.
 
-Thus, Fabric - and Python, for that matter - need only be installed on the nodes that you initiate these orchestration events from. The hosts that you run Fabric commands on only 'see' Fabric as an SSH client.
+Thus, Fabric - and Python, for that matter - need only be installed on the nodes that you initiate these orchestration events from. Additionally, the \emph{fabfile} only needs to be present on the orchestration node. The hosts that you run Fabric commands on only 'see' Fabric as an SSH client.
 
 Fabric is compatible with most methods of authentication to hosts (user/password or SSH keys), which allows proper security procedures to be observed while executing tasks on the cluster.
 
@@ -99,7 +108,11 @@ def update():
   sudo("yum upgrade -y")
 \end{lstlisting}
 
-This command would be executed as \texttt{fab -H localhost update} and would update \texttt{yum} packages on \texttt{localhost}. You can expand the \texttt{-H} option to include a comma-separated list of hosts to run the command on.
+This command would be executed as
+\begin{verbatim}
+$ fab -H localhost update
+\end{verbatim}
+and would update \texttt{yum} packages on \texttt{localhost}. You can expand the \texttt{-H} option to include a comma-separated list of hosts to run the command on.
 
 \subsection{Operations}
 
@@ -121,15 +134,30 @@ Additionally, it's worth noting the \emph{fail-fast} approach that Fabric takes.
 \subsection{Decorators}
 Fabric tasks can be defined simply as functions in the \emph{fabfile}. Fabric also includes a few useful decorators to alter the default execution behavior of the task functions:
 \begin{itemize}
-  \item \texttt{@serial} - Run the task serially across hosts by default. (Finish the execution on one host before starting on the next host.)
-  \item \texttt{@parallel} - Run the task in parallel across hosts by default. (Start the execution on many hosts simultaneously, and continue execution in parallel.)
+  \item \texttt{@serial} - Run the task serially across hosts by default. (Finishes the execution on one host before starting on the next host.) This is useful for sensitive or network intensive tasks, like downloading large packages, so at most 1 node is being acted upon at a time.
+  \item \texttt{@parallel} - Run the task in parallel across hosts by default. (Starts the execution on many hosts simultaneously, and continue execution in parallel.) This is useful for computationally expensive or long running tasks,like package manager updates, which can safely be run by many nodes simultaneously.
   \item \texttt{@task} - Explicitly declare the function as a task. (Useful in larger \emph{fabfile} modules)
 \end{itemize}
 
-\section{Executing Fabric Tasks}
-The simplest way to run a Fabric command, as discussed previously, is \texttt{fab <TASK\_NAME>}. However, Fabric execution can be extended and customized to increase its usefulness.
+\subsection{Fabfile Maintainability}
+Once in production, \emph{fabfile}s should stay mostly static. Changing production \emph{fabfile}s can cause inconsistencies across the cluster. For example, if our \emph{fabfile} created a worker node from a base OS image, changes in this \emph{fabfile} after deployment would lead to different node configuration after Fabric execution.
 
-For example, \texttt{fab <TASK1> <TASK2>} chains two tasks together, allowing the composition of more advanced work-flows.
+We found it helpful to version control all of our \emph{fabfile}s in a centralized git repository.
+
+Additionally, proper commenting and documentation style should be used to promote maintainability. Fabric tasks are usually procedural, so readability is generally simple to maintain.
+
+\section{Executing Fabric Tasks}
+The simplest way to run a Fabric command, as discussed previously, is:
+\begin{verbatim}
+$ fab <Task>
+\end{verbatim}
+
+However, Fabric execution can be extended and customized to increase its usefulness.
+
+For example, running multiple fabric tasks chains the tasks together, allowing the composition of more advanced work-flows:
+\begin{verbatim}
+$ fab <Task1> <Task2>
+\end{verbatim}
 
 The following sections will discuss a variety of techniques useful in the execution of Fabric tasks. 
 
@@ -142,13 +170,52 @@ from fabric import *
 env.hosts = open('hosts').readlines()
 \end{lstlisting}
 
-One can also imagine that it would be useful to programatically pull down a list of hosts from a cluster management tool like Apache Ambari, and set Fabric's host list automatically.
+One can also imagine that it would be useful to programatically pull down a list of hosts from a cluster management tool like Apache Ambari, and set Fabric's host list dynamically:
+
+\begin{lstlisting}[language=Python, showstringspaces=false, breaklines=true]
+import requests
+from fabric import *
+
+CLUSTER_NAME = "test_cluster"
+AMBARI_HOST = "http://localhost:8080"
+USER, PASS = "admin", "admin"
+api_url = AMBARI_HOST, CLUSTER_NAME
+api_url += "/api/v1/clusters/"
+api_url += CLUSTER_NAME
+api_url += "/hosts"
+headers = {"X-Requested-By": "ambari"}
+
+# Get spark host list from Ambari
+r = requests.get(AMBARI_HOST,
+    headers=headers
+    auth=(USER, PASS))
+
+# Assign host list to Fabric hosts
+hosts = r.json()['items']
+env.hosts = [h['Hosts']['host_name']
+             for h in hosts]
+
+def update():
+    sudo("yum update")
+\end{lstlisting}
 
 Fabric also has the concept of host "roles". Roles allow hosts to be treated differently by Fabric based on their type (i.e. a database host may receive a different set of commands than a web server host for a given command, or a task may only be applicable to one set of hosts because of their role). However, for our purposes we assume relative homogeneity within cluster nodes, so this feature has limited use.
+
+\subsection{Specifying a Fabfile}
+By default, Fabric looks for either a \texttt{fabfile.py} file or a \texttt{fabfile} module when it is executed. However, you can create a \emph{fabfile} with an arbitrary name, and specify the path to that file with the \texttt{-F} flag. We have found it useful to make the name of the \emph{fabfile} reflect it's utility (i.e. \texttt{volume\_management.py}).
+
+\begin{verbatim}
+$ fab -F /path/to/my_custom_fabfile.py <Task>
+\end{verbatim}
+
 
 \subsection{Authentication}
 \subsubsection{SSH}
 An SSH key may be specified with \texttt{-i <KEY\_FILE>}. Note that you may have to change your hostnames to be in the form \texttt{USERNAME@hostname} in order to select the right user to login as.
+
+\begin{verbatim}
+$ fab <Task> -i ~/.ssh/id_rsa -H centos@cluter.local
+\end{verbatim}
 
 \subsubsection{User Password}
 Passwords may either be specified by \texttt{-I} for a password prompt at execution (recommended), or with \texttt{-\--password} to pass the password as part of the command. There are more involved options for specifying per-host passwords that are documented well in the Fabric documentation.
