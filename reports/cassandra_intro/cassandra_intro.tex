@@ -176,23 +176,6 @@ $ $CASSANDRA_HOME/bin/cqlsh ANY_SERVER 9042
 \end{lstlisting}
 
 
-\section{Overview of data modeling}
-
-If you are familiar with more traditional Relational Database Management Systems (RDBMS) then you are familiar with the concept of tables and joins where the table represents spreadsheets. Imagine Cassandra as a traditional RDBMS without the ability to do JOINs and where every statement ought to have a LIMIT BY for performance (there are ways around it).
-
-If you are otherwise not familiar with traditional data stores, cassandra stores its data in tables, much like a spreadsheet. The tables live in entities called keyspaces. Keyspaces are ways for cassandra to keep track of resillience levels in tables in cqlsh syntax here is how you create one.
-
-\begin{lstlisting}
-
-> CREATE KEYSPACE "KeySpace Name: WITH replication = 
-      {
-        'class': ‘Strategy name’, 
-        'replication_factor' : 'Number of replications'
-      };
-
-\end{lstlisting}
-
-
 \section{CQLSH/Drivers}
 
 There are two usual ways of interacting with cassandra, either the cqlsh executable or drivers for a specific programming language.
@@ -203,12 +186,10 @@ This is where community drivers come in. One can find drivers for many popular p
 
 \begin{lstlisting}[language=Python]
 from cassandra.cluster import Cluster
-from cassandra.policies import DCAwareRoundRobinPolicy
 
 cluster = Cluster(
     ['machine_ip_1', ...],
     port=...,
-    load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='TIMEZONE'),
     )
 try:
   sess = cluster.connect()
@@ -220,11 +201,86 @@ try:
 except:
   pass
 finally:
-  # No Need to close inherently!
+  # No Need to close!
+\end{lstlisting}
+
+The convention is that there is one cluster object that connects once at the start of the program, then there is one session per keyspace that executes queries.
+
+The cluster object represents an object that can connect to any node in the cluster. The session object manages the session, there is no need to open or close it. And mostly, you can execute queries very easily in cassandra SQL.
+
+\section{Overview of data modeling}
+
+If you are familiar with more traditional Relational Database Management Systems (RDBMS) then you are familiar with the concept of tables and joins where the table represents spreadsheets. Imagine Cassandra as a traditional RDBMS without the ability to do JOINs and where every statement ought to have a LIMIT BY for performance (there are ways around it).
+
+If you are otherwise not familiar with traditional data stores, cassandra stores its data in tables, much like a spreadsheet. The tables live in entities called keyspaces. Keyspaces are ways for cassandra to keep track of resillience levels in tables in cqlsh syntax here is how you create one.
+
+\begin{lstlisting}[breaklines]
+> CREATE KEYSPACE "NAME" WITH replication = 
+      {
+        'class': 'SimpleStrategy', # The default 
+        'replication_factor' : 3 # For example
+      };
+\end{lstlisting}
+
+To start using a keyspace, do the following
+
+\begin{lstlisting}[breaklines]
+> USE KEYSPACE "KEYSPACE"
+\end{lstlisting}
+
+To create a table it is pretty similar as well. One of the technical notes to data modeling is that you want to design your table with the idea that as much information as possible should be in one row of the table. Cassandra likes wide column stores because it cannot do JOINs with other tables. This means that it preferes to have denormalized data, repeated data and so on versus a single representation for everything. There are some basic crud operations below (The should look similar to SQL for those of you familiar).
+
+\begin{lstlisting}[breaklines]
+> CREATE TABLE "SAMPLE" (
+    sample_identifier text,
+    sample_time timestamp,
+    sample_size int,
+    sample_data blob,
+    PRIMARY_KEY (sample_identifier, 
+      sample_time) # You must have a key!
+  )
+\end{lstlisting}
+
+\begin{lstlisting}
+> INSERT INTO SAMPLE VALUES ("1", toTimestamp(now()), 10, {"data"})
+> DELETE FROM SAMPLE WHERE sample_size = 10
 \end{lstlisting}
 
 \section{Tuning Params}
 
+There are many basic ways to tune Cassandra.
+
+First, During your queries, make sure to set the appropriate consistency level. The consistency level tells the query to return succeeded or failed based on the number of nodes that get written to. The other nodes may eventually be replicated, but for your queries to return, this is the standard way. The most popular consistency levels are as follows.
+
+\begin{enumerate}
+\item ONE/TWO/THREE, this means the read/write only has to go to one/two/three node(s) before returning
+\item QUORUM, this means the read/write has to go to half the nodes plus one. This is because for workloads with equal reads and writes, having a quorum is guaranteeing consistency.
+\item ALL, this means the read/write has to go to all the nodes in the cluster (or almost all) before returning. This is usefull to pair with a ONE consistency level in the case of optimize workloads (more in the next section).
+\end{enumerate}
+
+\subsection{Workloads - Sessions}
+
+\subsection{read heavy/write light}
+
+For read heavy/write light workloads, set the \textit{read session} consistency to ONE with he following command in one session.
+
+\begin{lstlisting}[breaklines]
+> CONSISTENCY ONE
+\end{lstlisting}
+
+And the write consistency to ALL with the following command
+
+\begin{lstlisting}[breaklines]
+> CONSISTENCY ALL
+\end{lstlisting}
+
+\subsection{write heavy/read light}
+
+For write heavy/read light workloads, set the consistency vice versa as above. 
+
+
+\subsection{Balanced Workloads}
+For the case where you need a balanced workload, set both consistencies in the session to QUORUM, so you get consistent results in both reads and writes with high probability.
 
 \section{Usual Do Nots}
 
@@ -233,11 +289,13 @@ Although cassandra gives you a lot of tunability parameters there are practices 
 \begin{enumerate}
 \item Do not put cassandra's data files on network attached storage
 \item Try not to host cassandra's data files directly on hadoop either, cassandra has reliability built into it.
+\item Try not to store your data on multiple separate tables to join later. Cassandra is part of the wide column store family meaning that
 \end{enumerate}
 
 
 \section*{References}
-
+https://www.digitalocean.com/community/tutorials/how-to-run-a-multi-node-cluster-database-with-cassandra-on-ubuntu-14-04
+https://docs.datastax.com/en/cassandra/2.1/cassandra/dml/dml_config_consistency_c.html
 
 
 
