@@ -44,7 +44,7 @@ An introduction to setting up Apache Spark with Python
 \textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
 \textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
 {\huge \bfseries Setting up Spark for Python } \\[0.4cm] \HRule \\[1.5cm]
-\Large \emph{Author:}\\ Sameet Sapra \& Joshua Chang \& Benjamin Congdon \& Quinn Jarr \& Professor Brunner\\[3cm]
+\Large \emph{Author:}\\ Sameet Sapra, Joshua Chang, Benjamin Congdon, Quinn Jarr \& Professor Brunner\\[3cm]
 {\large \today}\\[3cm] % Date
 \vfill
 \end{titlepage}
@@ -60,15 +60,15 @@ This technical report makes the following assumptions:
 
 \section{What is Apache Spark?}
 
-Apache Spark is a fast cluster computing system. Spark can be configured with multiple cluster managers like Yarn, Mesos, Amazon EC2, or standalone mode. This technical report will install Spark on top of Yarn because Hadoop MapReduce is a feature that ships with Yarn.
+Apache Spark is a fast cluster computing system. Spark can be configured with multiple cluster managers like Yarn, Mesos, Amazon EC2, or in standalone mode. This technical report will install Spark on top of Yarn because Hadoop MapReduce is a feature that ships with Yarn.
 
-Spark supports many high level tools like GraphX and MLlib, for graphs processing and machine learning. It also has many APIs in Java, Scala, and Python, and we will install and configure the Java APIs and PySpark, Python's API for Spark.
+Spark supports many high level tools, like GraphX and MLlib, for graphs processing and machine learning. It also has many APIs in Java, Scala, and Python; we will install and configure the Java APIs and PySpark, Python's API for Spark.
 
 \section{Why PySpark?}
 
-PySpark is an API that interfaces with RDD's in Python. It is built on top of Spark's Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
+PySpark is an API that interfaces with RDD's (Resilient Distributed Dataset) in Python. It is built on top of Spark's Java API and exposes the Spark programming model to Python. PySpark makes use of a library called Py4J, which enables Python programs to dynamically access Java objects in a Java Virtual Machine. This allows data to be processed in Python and cached in the JVM.
 
-Additionally, Python allows for community data science packages to be used in the context of cloud computing. This ensures that the language does not become outdated and receives continuous support from the community to have updated solutions to tackle the latest issues in data science.
+Additionally, Python allows for community data science packages to be used in the context of cloud computing. This ensures that the language does not become obsolete and receives continuous support from the community to have updated solutions to tackle the latest issues in data science.
 
 \section{PySpark Prerequisites}
 
@@ -86,7 +86,7 @@ You can install Java on the system with:
 \noindent
 Next we will install Hadoop, since Yarn ships with it. 
 
-Navigate to http://{main.install.hostname}:8080 on a browser, and login. The default credentials should be admin for the username, and admin for the password, unless it was changed in the Ambari configuration.
+Navigate to http://{main.install.hostname}:8080 on a browser, and login. The default credentials should be "admin" for the username, and "admin" for the password, unless it was changed in the Ambari configuration.
 Then you can create a cluster at the Welcome page. To build up the cluster, the installation wizard needs to know about all of the hosts. Enter all of the host names for the cluster into the \textbf{Target Hosts} textbox.
 
 After clicking next, you can decide which of the services need to be installed on the cluster. HDFS will be installed as a minimum, but check the following boxes: YARN + MapReduce2, Tez, Hive, Pig, and Spark.
@@ -163,5 +163,9 @@ The \textit{'--num-executors 10'} flag (arbitrary number) may be added to specif
 \section{Conclusion}
 
 This technical report serves as a guide to set up an environment to run Spark on HDFS and write some simple Python code to take advantage of Spark using PySpark. With this setup, you can now take advantage of Spark's Resilient Distributed Datasets and have the data stored in memory and more quickly accessible.
+
+\section{Sources}
+
+http://spark.apache.org/examples.html
 
 \end{document}
