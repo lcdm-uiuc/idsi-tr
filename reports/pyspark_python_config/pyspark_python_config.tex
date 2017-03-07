@@ -90,7 +90,7 @@ There are 2 primary configuration settings necessary to configure PySpark to wor
 
 When running in a \emph{client} mode, these variables can be set as environment variables on the node being used as the client driver. However, when PySpark is used in a \emph{cluster} mode (such as \emph{yarn-cluster}), this setting must be configured in the Spark configuration.
 
-There is one additional complication due to the way that Python 3 handles hashing. Python 3 introduces randomness into its hashes to prevent hashing DoS attacks. However, in our parallel computing, we need nodes to agree on the hash seed. Thus, we must also configure \texttt{PYTHON\_HASH\_SEED} to be identical on all nodes in the cluster.
+There is one additional complication due to the way that Python 3 handles hashing. Python 3 introduces randomness into its hashes to prevent hashing DoS attacks. However, in our parallel computing, we need nodes to agree on the hash seed. Thus, we must also configure \texttt{PYTHONHASHSEED} to be identical on all nodes in the cluster.
 
 To make the relevant changes to your Spark configuration, go to the Ambari Dashboard and navigate to \emph{Services > Spark > Configs}.
 
@@ -154,8 +154,18 @@ beautifulsoup4==4.4.0
 
 Once the cluster's \texttt{requirements.txt} has been updated, run the package installation Fabfile task to update the \emph{site-packages} of all the nodes in the cluster.
 
+If you are using the Fabfile distribution that comes with this technical report, run the following command:
+
+\begin{verbatim}
+$ fab -f package_management.py install_requirements
+\end{verbatim}
+
 \subsection{Updating Packages}
-Updating packages can be done manually, by changing the version required in the cluster's \texttt{requirements.txt}. To update all packages automatically, you can run \texttt{pip} in a Python \texttt{virtualenv} with its update flag to pull down the latest version numbers. (Note that this requires \texttt{virtualenv} to be installed.)
+Updating packages can be done manually, by changing the version required in the cluster's \texttt{requirements.txt}.
+
+To do this in a clean way without disturbing the system's package, we will use \texttt{virtualenv} to create a new package environment. Running \texttt{virtualenv} creates a folder that contains the binary distribution of Python, Pip, and other tools. It also creates a new location within the virtual environment folder for packagse. \texttt{virtualenv} is a useful tool for testing Python environments without affecting the environment at the system level.
+
+To update all packages automatically, we run \texttt{pip} in a Python \texttt{virtualenv} with its update flag to pull down the latest version numbers. (Note that this requires \texttt{virtualenv} to be installed.)
 
 \begin{verbatim}
 $ virtualenv venv
@@ -168,13 +178,20 @@ $ rm -r venv/
 
 Once the \texttt{requirements.txt} has been updated, run the install Fabric task again and the nodes will be updated similarly.
 
+Updating the \texttt{requirements.txt} in this fashion can easily be automated using Fabric. If you are using our Fabfile distribution, run the following command:
+\begin{verbatim}
+$ fab -f package_management.py update_requirements
+\end{verbatim}
+
+This Fabric task only updates the local \texttt{requirements.txt}, and does not update packages on cluster hosts. To do this, you will need to rerun the \texttt{install\_requirements} task.
+
 \section{Conclusion}  
 
 \section*{References}
 \begin{itemize}
-  \item <Reference to Fabric setup technical report>
-  \item <Reference to Python3 install fabfile>
-  \item <Reference to Fabric requirements.txt Fabfile>
+  \item For information about setting up Fabric, refer to the \emph{"Introduction to Fabric for Cluster Management"} technical report.
+  \item Fabric tasks for installing Python can be found in the included \texttt{python3\_install.py} fabfile
+  \item Fabric tasks for installing and updating Python packages can be found in the included \texttt{package\_management.py} fabfile
 \end{itemize}
 
 
