@@ -2,6 +2,7 @@
 % Defines a new command for the horizontal lines, change thickness here
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
 \usepackage{listings}
+\usepackage{mdframed}
 \renewcommand{\headrulewidth}{2pt}
 \fancypagestyle{plain}{%
   \fancyhead[L]{
@@ -84,7 +85,7 @@ You can install Java on the system with:
 \end{verbatim}
 
 \noindent
-Next we will install Hadoop, since Yarn ships with it. 
+Next we will install Hadoop, since Yarn ships with it. The following instructions were adapted from the official Apache Ambari Installation guide$^1$.
 
 Navigate to http://{main.install.hostname}:8080 on a browser, and login. The default credentials should be "admin" for the username, and "admin" for the password, unless it was changed in the Ambari configuration.
 Then you can create a cluster at the Welcome page. To build up the cluster, the installation wizard needs to know about all of the hosts. Enter all of the host names for the cluster into the \textbf{Target Hosts} textbox.
@@ -135,9 +136,10 @@ You should see the Python REPL come up with the version that was just installed 
 
 \section{Writing our first lines of PySpark}
 
-This example is taken from the Apache Spark website. It runs a parallelized operation to compute the value of $\pi$ and is a good example to see the benefits of Spark.
+This example is taken from the Apache Spark website$^2$. It runs a parallelized operation to compute the value of $\pi$ and is a good example to see the benefits of Spark.
 
-\begin{lstlisting}[language=Python]
+\begin{mdframed}
+\begin{verbatim}
 def inside(p):
     x, y = random.random(), random.random()
     return x*x + y*y < 1
@@ -147,7 +149,8 @@ count = sc.parallelize(samplen) \
              .filter(inside).count()
 pi_approx = (4.0 * count / NUM_SAMPLES)
 print "Pi is roughly %f" % pi_Approx
-\end{lstlisting}
+\end{verbatim}
+\end{mdframed}
 
 Once you've written your Python code, you can compile and deploy it with:
 \begin{verbatim}
@@ -166,6 +169,7 @@ This technical report serves as a guide to set up an environment to run Spark on
 
 \section{Sources}
 
-http://spark.apache.org/examples.html
+[1]: https://ambari.apache.org/1.2.1/installing-hadoop-using-ambari/content/ $\newline$
+[2]: http://spark.apache.org/examples.html
 
 \end{document}
