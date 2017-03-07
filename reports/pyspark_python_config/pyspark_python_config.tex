@@ -27,6 +27,7 @@
 \pagestyle{plain}
 \def \reporttitle {PySpark on Python 3: Configuration and Package Management Guide}
 \author[1]{Benjamin Congdon}
+\author[1]{Quinn Jarrell}
 \author[2]{Professor Robert J. Brunner}
 \affil[1]{National Center For Supercomputing Applications (NCSA)}
 \affil[2]{Laboratory for Computation, Data, and Machine Learning}
@@ -185,7 +186,10 @@ $ fab -f package_management.py update_requirements
 
 This Fabric task only updates the local \texttt{requirements.txt}, and does not update packages on cluster hosts. To do this, you will need to rerun the \texttt{install\_requirements} task.
 
-\section{Conclusion}  
+\section{Conclusion}
+Using PySpark with Python 3 requires Python 3 to be installed on all hosts in the cluster. Once this installation is completed and the PySpark configuration is updated accordingly, PySpark should accept the Python 3 version and use it without issues.
+
+Cluster package management is made easier by transitioning away from the system version of Python (usually an older Python 2 distribution), and can be automated by Fabric. Managing a coherent set of pacakges across the cluster is important for the stability and utility of PySpark jobs.
 
 \section*{References}
 \begin{itemize}
