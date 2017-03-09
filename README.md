@@ -29,6 +29,7 @@ We have loads of topics to choose from right now we have the following ideas lis
 * Mesos
 * MongoDB
 * Neo4J
+   * Bhuvan - Introduction to Graph Databases (working)
 * Pig
 * Spark
    * Sameet and Josh - Hadoop, Spark, PySpark installation and configuration
@@ -76,12 +77,15 @@ First, take a look at the rest of the stuff in the repository (try to pick somet
 
 ## Reviewing
 
-Once you feel that you have a good first draft, go to the 
+Once you feel that you have a good first draft, make a pull request to master with your document. Have people review it, edit the document and continue that process until the document is in a semi ready state
+
+## Mirroring
+
+Once things have been approved in a **TDB approval process**. Then, we will mirror all the code and the documents in that repository and then that report will be published at this point.
 
 ## Licensing of the Technical Reports and Code
 
 **Prolly NCSA license, this part isn't entirely decided yet.**
-
 
 #### Technical Report Style
 Format borrowed from [Overleaf](https://www.overleaf.com/latex/templates/latex-template-for-preparing-an-article-for-submission-to-optica/gmsbdqxbmntw#.WIgCA7YrK35) which is licensed under the [LaTeX Project Public License](https://www.latex-project.org/lppl/)
