@@ -32,13 +32,14 @@ We have loads of topics to choose from right now we have the following ideas lis
 * Pig
 * Spark
    * Sameet and Josh - Hadoop, Spark, PySpark installation and configuration
+   * Ben - PySpark Package Management and Python3 Setup
 * Spark GraphX
 * Spark MLib
 
 #### Datasets:
 
-Financial data (200+ GB, Professor Brunner)
-Financial Data (potentially from corporate partner, Multi-TB?, awaiting).
+* Financial data (200+ GB, Professor Brunner)
+* Financial Data (potentially from corporate partner, Multi-TB?, awaiting).
 
 ## Checklist
 
