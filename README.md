@@ -63,11 +63,15 @@ When in doubt cite! [Cite: Ben Congdon]. We will use **TBD CITATION STYLE**. Mak
 Okay, you've got your topic -- potentially dataset -- you've done some research and you are ready to start writing. What do you do? 
 
 * First create a branch off the master branch. 
-* Call it <technical_report>_tr. 
+* Call it [technical_report]_tr. 
 * Make a folder in the reports/ directory with what your technical report is. 
 * Copy the template.tex in the root to the folder you just created.
 * Write to your hearts content.
 * Go to the root directory and type make, and you should see the technical report in your directory.
+
+#### Well what do I write?
+
+First, take a look at the rest of the stuff in the repository (try to pick something close to what you are writing if you are considering an intro-level report versus a report analyzing different aspects). Make sure to include a bit about setting up the data and how one should do that in general. Make sure to include benefits and drawbacks of this approach. Always consider your target audience when writing.
 
 ## Reviewing
 
