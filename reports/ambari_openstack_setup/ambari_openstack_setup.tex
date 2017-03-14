@@ -83,7 +83,7 @@ This restricts external access to any node only through port 8080 or SSH. Port 8
 \section{Setting up the network for Centos 6}
 \label{sec:network}
 
-Ambari requires each node in the cluster to know every other node's domain name. There are two ways of doing this, either through a Domain Name Server(DNS) or through editing a file called hosts. The hosts file is a slightly easier but more rigid method as it does only works well with a small private network (Less than 10000 hosts). To create the hosts file we generate a mapping like
+Ambari requires each node in the cluster to know every other node's domain name. There are two ways of doing this, either through a Domain Name Server(DNS) or through editing a file called hosts. The hosts file is a slightly easier but more rigid method as it only works well with a small private network (Less than 10000 hosts). To create the hosts file we generate a mapping like
 
 192.168.0.0 192-168-0-0.local
 
@@ -153,7 +153,7 @@ install_packages \
 For the rest of the report we assume you have installed these packages.
 
 \subsection{Copying Host File to Remote Nodes}
-Each node in the cluster requires the same Hosts file in order to match IP to FQDN.
+Each node in the cluster requires the same /etc/hosts file in order to match IP to FQDN.
 The function copy\_hosts\_file will copy the file \path{ip_to_host} from the current directory to \path{/etc/hosts} on each node.
 
 
@@ -190,7 +190,7 @@ disable_huge_pages \
 
 \subsection{Disabling Firewalls}
 
-We turn off the firewall for all nodes within the cluster. We suggest implementing the firewall with Openstack security groups instead. See the Openstack configuration report for details. To turn the firewall off run the disable\_firewall function with the host names of the computers in your cluster.
+To turn off the firewall for all nodes within the cluster. We suggest implementing the firewall with Openstack security groups instead. See the Openstack configuration report for details. To turn the firewall off run the disable\_firewall function with the host names of the computers in your cluster.
 
 \begin{verbatim}
 fab -f setup-fqdn.py \
@@ -199,7 +199,7 @@ disable_firewall \
 \end{verbatim}
 
 \subsection{Enabling NTP}
-Hadoop, Spark and many other services provided by Ambari require as accurate time as possible.  We install and sync the nodes explicitly during setup through the Network Time Protocol (NTP) service. 
+Hadoop, Spark and many other services provided by Ambari require as accurate time as possible.  The nodes should be synced explicitly during setup through the Network Time Protocol (NTP) service. 
 
 \begin{verbatim}
 fab -f setup-fqdn.py \
@@ -228,7 +228,7 @@ import_ambari_repo \
 
 \subsection{Setting up Ambari Server}
 
-Finally we need to set up a server on \emph{one} of the nodes in the cluster. This node should have all of the above functions run on it already. This node will operate the web interface to manage your cluster. It will also most likely be the only node accessible from the outside internet.
+Finally you should set up the Ambari web server on \emph{one} of the nodes in the cluster. This node should have all of the above functions run on it already. This node will operate the web interface to manage your cluster. It will also most likely be the only node accessible from the outside internet.
 
 \begin{verbatim}
 fab -f setup-fqdn.py \
@@ -245,6 +245,8 @@ Now the web interface will be available at your master node's floating IP addres
 
 \subsection{Adding Servers to Ambari}
 After naming your new cluster, you should add new hosts by listing their FQDNs like 192-168-0-2.local. Note the dashes instead of dots for the FQDN. Several nodes can be added through simple pattern expressions like 192-168-0-[2-5].local . This will add hosts 192-168-0-2.local, 192-168-0-3.local, 192-168-0-4.local, 192-168-0-5.local. After entering the hosts, select your private SSH key or copy paste it into the box. It is needed for Ambari to SSH into each machine to install services. Also \textbf{make sure to change the SSH User Account from root to centos} since Centos 6 does not allow root login by default. After adding the hosts, registration should take a few minutes to confirm the hosts are healthy. Then select the services you want and follow the onscreen guide. The default assignments for masters and slaves should work.
+
+
 
 \section{Sources}
 1. https://ambari.apache.org/1.2.2/installing-hadoop-using-ambari/content/ambari-chap1.html
