@@ -4,6 +4,8 @@ REPORTS=$(basename $(REPORTS_TEX))
 REPORTS_PDF=$(addsuffix .pdf,$(REPORTS))
 TEXTMP_DIR=.textmp
 
+BIB = bibtex
+
 all: reports
 
 .PHONY: all
