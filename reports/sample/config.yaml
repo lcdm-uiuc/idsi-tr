@@ -1,15 +1,16 @@
 version: 0.0.1
-report_title: LaTeX Template For an iDSI Technical Report
+report_key: sample_template
+report_title: LaTeX yeah For an iDSI Technical Report
 organizations:
   - National Center For Supercomputing Applications (NCSA)
   - Laboratory for Computation, Data, and Machine Learning
   - Univeristy of Illinois
 authors:
-  - Bhuvan Venkatesh:
-      - 1
-      - 2
-  - Professor Brunner:
-      - 2
-      - 3
+  Bhuvan Venkatesh:
+    - 1
+    - 2
+  Professor Brunner:
+    - 2
+    - 3
 prereqs:
   - Another One
