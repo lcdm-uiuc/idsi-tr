@@ -24,13 +24,13 @@
   \fancyfoot[C]{\thepage}
 }
 \pagestyle{plain}
-\def \report_title {Processing Custom Input Formats With Hadoop}
+\def \report_title {Processing Custom Input With Hadoop}
 \author[1,3]{Nishil Shah}
 \author[2,3]{Professor Robert J. Brunner}
 \affil[1]{National Center For Supercomputing Applications (NCSA)}
 \affil[2]{Laboratory for Computation, Data, and Machine Learning}
 \affil[3]{Illinois Data Science Initiative}
-\title{Processing Custom Input Formats With Hadoop}
+\title{Processing Custom Input With Hadoop}
 
 \begin{abstract}
 By implementing our own FileInputFormat and RecordReader for MapReduce, we can gain control over how Hadoop reads files, constructs input splits, and builds key-value pairs for the mapper.
@@ -42,7 +42,7 @@ By implementing our own FileInputFormat and RecordReader for MapReduce, we can g
 \center
 \textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm]
 \textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
-{\huge \bfseries Processing Custom Input Formats with Hadoop } \\[0.4cm] \HRule \\[1.5cm]
+{\huge \bfseries Processing Custom Input with Hadoop } \\[0.4cm] \HRule \\[1.5cm]
 \Large \emph{Author:}\\ Nishil Shah \\[3cm]
 {\large February 23, 2017}\\[3cm] % Date
 %\includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
@@ -111,13 +111,14 @@ Our function looks like this:
 \begin{lstlisting}
 public boolean nextKeyValue() throws IOException {
     if(!processedBlock) {
+        //setup
         FileSplit fileSplit = (FileSplit)inputSplit;
+        int splitLength = (int)fileSplit.getLength();
+        byte[] blockBytes = new byte[splitLength];
+        //get file
         Path filePath = fileSplit.getPath();
         FileSystem fileSystem = filePath.getFileSystem(conf);
-
-        int splitLength = (int)fileSplit.getLength();
-        byte[] blockBytes = new byte[fileLength];
-
+        //read bytes
         FSDataInputStream in = null;
         try {
             in = fileSystem.open(filePath);
@@ -150,7 +151,7 @@ Our mapper will now receive a BytesWritable instance which contains the entire c
 
 \section{Using External Libraries With Hadoop}
 
-Luckily, there exists an open source package called \emph{bitcoinj} which we can use to parse the byte contents of each block file. The \emph{bitcoinj} library includes functionality to generate a Block object from this sequence of bytes. From this Block, we can extract just the information we need into custom data types, BlockWritable and TransactionWritable for use in MapReduce. Refer to Technical Report \emph{xxxx} to learn about creating custom key and value types for Hadoop MapReduce.
+Luckily, there exists an open source package called \emph{bitcoinj} which we can use to parse the byte contents of each block file. The \emph{bitcoinj} library includes functionality to generate a Block object from this sequence of bytes. From this Block, we can extract just the information we need into custom data types, BlockWritable and TransactionWritable for use in MapReduce. Refer to Technical Report "Building Writable Data Types for Hadoop" to learn about creating custom key and value types for Hadoop MapReduce.
 
 To compile and run MapReduce using an external jar, add the jar to the classpath. By running \lstinline{echo $HADOOP_CLASSPATH} on the command-line, you'll see a list of directories that belong to Hadoop's classpath on your system. Moving the jar (\emph{bitcoinj.jar} in our case) to any of those directories does the trick. In addition, the following configuration should be added to your job in the main driver to ensure the jar is located during runtime.
 
