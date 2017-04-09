@@ -1,11 +1,10 @@
 REPORTS_DIR=reports
-REPORTS_TEX=reports/sample/template.tex #$(wildcard $(REPORTS_DIR)/**/*.tex)
+REPORTS_TEX=$(wildcard $(REPORTS_DIR)/**/*.tex)
 REPORTS=$(basename $(REPORTS_TEX))
 DIRECTORIES=$(dir $(REPORTS))
 CONFIGS=$(addsuffix config.cls,$(DIRECTORIES))
 REPORTS_PDF=$(addsuffix .pdf,$(REPORTS))
 TEXTMP_DIR=.textmp
-$(info $(CONFIGS))
 all: reports
 
 .PHONY: all
@@ -14,7 +13,6 @@ reports: $(REPORTS_PDF)
 
 .SECONDEXPANSION:
 $(REPORTS_PDF): %.pdf : %.tex $$(dir %)config.cls
-	-echo $*
 	-mkdir $(dir $@)/$(TEXTMP_DIR)
 	-TEXINPUTS=.:$(dir $@): pdflatex -synctex=1 -interaction=nonstopmode \
 		-output-directory=$(dir $@)$(TEXTMP_DIR) \
@@ -26,5 +24,6 @@ $(CONFIGS): %.cls: %.yaml
 
 clean:
 	-rm $(REPORTS_PDF)
+	-rm $(CONFIGS)
 .PHONY: clean
 .SILENT:clean
