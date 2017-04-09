@@ -1,36 +1,6 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
-% Defines a new command for the horizontal lines, change thickness here
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
-\renewcommand{\headrulewidth}{2pt}
-\fancypagestyle{plain}{%
-  \fancyhead[L]{
-    \begin{tabular}{ll}
-%        \includegraphics[scale=0.15]{figs/ncsa_vertical}
-    \end{tabular}
-  }
-  \fancyhead[C]{
-      	\begin{tabular}[m]{c}
-		  	\fontsize{20}{20} Illinois Data Science Initiative
-		\end{tabular}
-  }
-
-  \fancyhead[R]{
-    \begin{tabular}{ll}
-%	  	\includegraphics[scale=0.125]{figs/ill}
-  	\end{tabular}
-  }
-
-  \fancyfoot[C]{\thepage}
-}
-\pagestyle{plain}
-\def \report_title {Processing Custom Input With Hadoop}
-\author[1,3]{Nishil Shah}
-\author[2,3]{Professor Robert J. Brunner}
-\affil[1]{National Center For Supercomputing Applications (NCSA)}
-\affil[2]{Laboratory for Computation, Data, and Machine Learning}
-\affil[3]{Illinois Data Science Initiative}
-\title{Processing Custom Input With Hadoop}
+\input{config.cls}
 
 \begin{abstract}
 By implementing our own FileInputFormat and RecordReader for MapReduce, we can gain control over how Hadoop reads files, constructs input splits, and builds key-value pairs for the mapper.
@@ -38,17 +8,7 @@ By implementing our own FileInputFormat and RecordReader for MapReduce, we can g
 
 \begin{document}
 
-\begin{titlepage}
-\center
-\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm]
-\textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
-{\huge \bfseries Processing Custom Input with Hadoop } \\[0.4cm] \HRule \\[1.5cm]
-\Large \emph{Author:}\\ Nishil Shah \\[3cm]
-{\large February 23, 2017}\\[3cm] % Date
-%\includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
-\vfill
-\end{titlepage}
-%\include{cover}
+\makecoverpage
 
 \maketitle
 
