@@ -1,37 +1,6 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
-% Defines a new command for the horizontal lines, change thickness here
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
-\usepackage{listings}
-\usepackage{mdframed}
-\renewcommand{\headrulewidth}{2pt}
-\fancypagestyle{plain}{%
-  \fancyhead[L]{
-    \begin{tabular}{ll}
-%        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
-    \end{tabular}
-  }
-  \fancyhead[C]{
-      	\begin{tabular}[m]{c}
-		  	\fontsize{20}{20} Illinois Data Science Initiative    	
-		\end{tabular}
-  }
 
-  \fancyhead[R]{
-    \begin{tabular}{ll}
-%	  	\includegraphics[scale=0.125]{figs/ill}  		
-  	\end{tabular}
-  }
-  
-  \fancyfoot[C]{\thepage}
-}
-\pagestyle{plain}
-\def \report_title {Setting up Spark for Python}
-\author[1]{Sameet Sapra}
-\author[2]{Joshua Chang}
-\author[3]{Benjamin Congdon}
-\author[4]{Quinn Jarr}
-\author[5]{Professor Brunner}
-\title{Setting up Spark for Python}
+\input{config.cls}
 
 \begin{abstract}
 An introduction to setting up Apache Spark with Python
@@ -40,15 +9,7 @@ An introduction to setting up Apache Spark with Python
 \usepackage{listings}
 \begin{document}
 
-\begin{titlepage}
-\center 
-\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm] 
-\textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
-{\huge \bfseries Setting up Spark for Python } \\[0.4cm] \HRule \\[1.5cm]
-\Large \emph{Author:}\\ Sameet Sapra, Joshua Chang, Benjamin Congdon, Quinn Jarr \& Professor Brunner\\[3cm]
-{\large \today}\\[3cm] % Date
-\vfill
-\end{titlepage}
+\makecoverpage
 
 \maketitle
 
