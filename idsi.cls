@@ -332,3 +332,29 @@ THE ABSTRACT\vskip12pt}\let\go\relax\fi
 \end{titlepage}
 }
 
+% Defines a new command for the horizontal lines, change thickness here
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
+
+\renewcommand{\headrulewidth}{2pt}
+\fancypagestyle{plain}{%
+  \fancyhead[L]{
+    \begin{tabular}{ll}
+%        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
+    \end{tabular}
+  }
+  \fancyhead[C]{
+        \begin{tabular}[m]{c}
+        \fontsize{20}{20} Illinois Data Science Initiative      
+    \end{tabular}
+  }
+
+  \fancyhead[R]{
+    \begin{tabular}{ll}
+%     \includegraphics[scale=0.125]{figs/ill}     
+    \end{tabular}
+  }
+  
+  \fancyfoot[C]{\thepage}
+}
+\pagestyle{plain}
+
