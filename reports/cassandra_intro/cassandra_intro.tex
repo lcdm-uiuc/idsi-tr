@@ -10,15 +10,15 @@
     \end{tabular}
   }
   \fancyhead[C]{
-      	\begin{tabular}[m]{c}
-		  	\fontsize{20}{20} Illinois Data Science Initiative    	
-		\end{tabular}
+        \begin{tabular}[m]{c}
+        \fontsize{20}{20} Illinois Data Science Initiative      
+    \end{tabular}
   }
 
   \fancyhead[R]{
     \begin{tabular}{ll}
-%	  	\includegraphics[scale=0.125]{figs/ill}  		
-  	\end{tabular}
+%     \includegraphics[scale=0.125]{figs/ill}     
+    \end{tabular}
   }
   
   \fancyfoot[C]{\thepage}
@@ -33,6 +33,8 @@
 
 \begin{abstract}
 
+Distributed computing is becoming more imporatant as computer engineering is reaching significant challenges in vertical scaling. As such, transitioning traditional infrastructure to distributed infrastrucre requires programming and thinking on the software end. One transition is moving from a traditional relational database to a truly distributed database where failure and network traffic are taken into account. Apache cassandra meets those need, and in this technical report, you will be able to compare and contrast Cassandra to traditional systems, set up a single/multi node cluster and load some sample data either through the command line interface or through a programming language API.
+
 \end{abstract}
 
 \begin{document}
@@ -43,7 +45,37 @@
 
 \section{Introduction}
 
-Apache Cassandra is an Open Source distributed database. The characteristics of Cassandra is that it is a high availability and fault tolerant database. The use cases for Cassandra are when you are familiar with the typical SQL databases and you need a way of modeling
+Apache Cassandra is an Open Source distributed database. Cassandra is a highly available and fault tolerance database. The use cases for Cassandra are when you are familiar with the typical SQL databases, and you need to expand horizontally than vertically. There are a few quirks that naturally come moving to the distributed world as well as a few limitations but as long as they fit the project paramaters, Cassandra is an excellent alternative to chaining multiple RDBMS together.
+
+\section{Cassandra vs RDBMS}
+
+\textbf{Big Table}
+
+Cassandra is a big table data store, meaning that every row in the table need not be filled out when inserting data. Big table is also geared toward
+
+\textbf{Querying Data}
+
+In Cassandra there are two main differences, you usually store data by what you will search for later. Meaning that if you are going to query based on one feature, then you create a table for that one feature with all the (non primary-key) columns describing that one thing.
+
+For example, if you are modeling stock market data and all the querying will be done by day -- maybe getting the average outlook for the day -- the ideal set up would be one table indexed by date. If you need to query by company, then set up the table to be outlook by company. If you need both, it would be ideal to set up tables for each company and add on a time index to each of the tables. You can query based on non primary-key attributes, but it will impact your performance.
+
+\textbf{Data Distribution}
+
+In relational database management systems, the primary key tells the database how to optimize the store and order the btree structure physically for increased performance. The database is free to ignore this restriction and follow the clustered index.
+
+In Cassandra, the primary key tells cassandra which node the data should go to. Cassandra computes a hash value and distributes the rows to different data nodes. These nodes actually store the data, they can go down at any time, and they can come back up at any time and Cassandra will automatically keep track of the data distribution.
+
+\section{Usecases}
+
+\begin{enumerate}
+
+\item Frequently Changing Inventories (Highly available database with lots of writes). Cassandra is perfect due to the availibility and the write throughput. Other services could hook into Cassandra and compute analytics but if you are keeping track of multiple stocks then this is a huge benefit because all the data is on one system.
+
+\item Tweeting sinks (Single source database). Cassandra is good for write heavy data stores where there is one source but that source updates rapidly.
+
+\item Internet of things/Texting sinks (Multiple source database). Cassandra is good for multiple users sending data back to a centralized data store. It handles load balancing and when servers fail so these high frequency services can keep rolling.
+
+\end{enumerate}
 
 \section{Installation}
 
@@ -62,7 +94,7 @@ If not, the non-dockerized installation is below.
   \item Python 2.7 or Above
 \end{enumerate}
 
-First you will need to set a new user for cassandra, letting cassandra run under normal users is not recommended, so we create a new user
+First you will need to set a new user for Cassandra, letting Cassandra run under normal users is not recommended, so we create a new user
 
 \begin{lstlisting}[breaklines]
 $ useradd cassandra # Name for the user
@@ -89,7 +121,7 @@ $ chown cassandra /var/log/cassandra
 
 You can change this in the settings explained in a future section.
 
-To run cassandra switch the cassandra user, and execute the cassandra executable
+To run cassandra, switch to the cassandra user. Then, execute the cassandra executable
 
 \begin{lstlisting}[breaklines]
 $ sudo su cassandra
@@ -120,7 +152,7 @@ First, if you have a single node cluster you \textbf{must} complete these instru
 > COPY table_name FROM '/user/you/file_name'
 \end{lstlisting}
 
-If you are comfortable with your data backup, delete the old datastore
+Ideally with large databases, you may want to put it on the hadoop file system. If you are comfortable with your data backup, delete the old datastore
 
 \begin{lstlisting}[breaklines]
 sudo rm -rf /var/lib/cassandra/*
@@ -128,7 +160,7 @@ sudo rm -rf /var/lib/cassandra/*
 
 \subsection{Setting up the configurations}
 
-Got to the \$CASSANDRA\_HOME/cassandra.yaml file. You can update the following values to set up a multi node system
+Go to the \$CASSANDRA\_HOME/cassandra.yaml file. You can update the following values to set up a multi node system
 
 \begin{lstlisting}[breaklines]
 # Find these values in the existing file
@@ -153,10 +185,10 @@ endpoint_snitch: GossipingPropertyFileSnitch
 \item cluster\_name: The name of your cluster. In order for other nodes to join it must be named the \textbf{same thing} on each server.
 \item seed\_provider: This property is how cassandra knows about which nodes are directly connected to which. It will assume that the nodes are connected in a ring where the first ip is connected to the second, the second to the third and so on and the last is connected to the first.
 \item rpc\_address, listen\_address: These are the two IPs that cassandra will do its communication on. These are usually localhost and default to two ports.
-\item endpoint\_snitch: A snitch in computing shares metadata about the cluster (the health of each node, the free space etc) by occasionally telling its neighbors (fingertable accessible). This is the gossip protocol in work and that is why we go with the GossipingPropertyFileSnitch and not the SimpleSnitch for fault tolerance.
+\item endpoint\_snitch: A snitch in computing shares metadata about the cluster (the health of each node, the free space etc) by occasionally telling its neighbors through a fingertable. The GossipingPropertyFileSnitch is more fault tolerant due to randomness while the SimpleSnitch is ideally used for non-production testing.
 \end{enumerate}
 
-For those on linux systems iptables are the usualy firewall the kernel has up to block incoming traffic, we will need to circumvent that.
+For those on Linux systems, IPTables are the usualy firewall the kernel has up to block incoming traffic, we will need to circumvent that.
 
 \begin{lstlisting}[breaklines]
 # Redo the following command for each
@@ -176,7 +208,7 @@ $ $CASSANDRA_HOME/bin/cqlsh ANY_SERVER 9042
 \end{lstlisting}
 
 
-\section{CQLSH/Drivers}
+\section{Interacting With Cassandra}
 
 There are two usual ways of interacting with cassandra, either the cqlsh executable or drivers for a specific programming language.
 
@@ -210,7 +242,7 @@ The cluster object represents an object that can connect to any node in the clus
 
 \section{Overview of data modeling}
 
-If you are familiar with more traditional Relational Database Management Systems (RDBMS) then you are familiar with the concept of tables and joins where the table represents spreadsheets. Imagine Cassandra as a traditional RDBMS without the ability to do JOINs and where every statement ought to have a LIMIT BY for performance (there are ways around it).
+If you are familiar with more traditional Relational Database Management Systems, you are familiar with the concept of tables and joins. Imagine Cassandra as a traditional RDBMS without the ability to do JOINs and where every statement ought to have a LIMIT BY for performance (there are ways around it).
 
 If you are otherwise not familiar with traditional data stores, cassandra stores its data in tables, much like a spreadsheet. The tables live in entities called keyspaces. Keyspaces are ways for cassandra to keep track of resillience levels in tables in cqlsh syntax here is how you create one.
 
@@ -228,10 +260,10 @@ To start using a keyspace, do the following
 > USE KEYSPACE "KEYSPACE"
 \end{lstlisting}
 
-To create a table it is pretty similar as well. One of the technical notes to data modeling is that you want to design your table with the idea that as much information as possible should be in one row of the table. Cassandra likes wide column stores because it cannot do JOINs with other tables. This means that it preferes to have denormalized data, repeated data and so on versus a single representation for everything. There are some basic crud operations below (The should look similar to SQL for those of you familiar).
+To create a table it is pretty similar as well. One of the technical notes to data modeling is that you want to design your table with the idea that as much information as possible should be in one row of the table. Cassandra likes wide column stores because it cannot do JOINs with other tables. This means that it preferes to have denormalized data, repeated data and so on versus a single representation for everything. There are some basic crud operations below. This should look similar to SQL for those of you familiar.
 
 \begin{lstlisting}[breaklines]
-> CREATE TABLE "SAMPLE" (
+> CREATE TABLE sample (
     sample_identifier text,
     sample_time timestamp,
     sample_size int,
@@ -242,9 +274,67 @@ To create a table it is pretty similar as well. One of the technical notes to da
 \end{lstlisting}
 
 \begin{lstlisting}
-> INSERT INTO SAMPLE VALUES ("1", toTimestamp(now()), 10, {"data"})
-> DELETE FROM SAMPLE WHERE sample_size = 10
+> INSERT INTO sample 
+  VALUES ("1", toTimestamp(now()), 10, {"data"})
+> DELETE FROM sample 
+  WHERE sample_size = 10
 \end{lstlisting}
+
+\subsection{Important Cassandra Distinctions}
+
+Cassandra is a wide column store database that optimizes writes over reads. This means that writes happen very fast while reads take a while to get the value. Reads are done on a per row basis -- the more rows you want to return the longer you are going to wait for your query.
+
+But, the wide column store makes an important distinction. If we were to let's say group our data into static categories then our queries can be more efficient because it returns less rows. One example is storing a day or an hour's worth of stock ticker data in a \textit{single row} and adding columns to the wide column whenever need be. This makes cassandra efficient because now we've decreased the number of rows by an amazing factor meaning our queries will return faster. If we don't need the extra data we can simply discard it, most of the time spent will be on gathering the data between servers. If it becomes the case that the bottleneck is transmitting the data back because of rows too wide, one can change the composition of the columns to have less data until a threshold is reached.
+
+\section{Data Modeling Example}
+
+Let's take a specific example and see it through in CQL and python. Let's say we wanted to 
+
+\begin{lstlisting}[breaklines]
+CREATE TABLE stock (
+  company_name text,
+  stock_time date,
+  ticker set<tuple<int, float>>,
+  PRIMARY KEY(company_name, stock_time)
+);
+\end{lstlisting}
+
+Ideally you do not want to use the list data type because of failures that can occur when appending, instead we will store each of the ticker data as a set of tuples that represent (seconds from midnight, price). This example makes use of what is called a composite key, meaning that we require that the company\_name and the stock\_time be sent to the same node(s) every time. Now let's take a look at the two operations for inserting data. If we were starting the trading day new, then we could insert the following.
+
+\begin{lstlisting}[breaklines]
+INSERT INTO stock VALUES ('AAA', dateof(now()), {});
+\end{lstlisting}
+
+Every time we get something new for our ticker
+
+\begin{lstlisting}[breaklines]
+UPDATE stock SET ticker = ticker + { (TIME, PRICE) } 
+  WHERE company_name = 'AAA' AND date=dateof(now());
+\end{lstlisting}
+
+Since Cassandra is write optimized, this update will go through fast and reliably. Since our sets don't need to have order (we imposed that constraint through our set) we have additional reliability and speed.
+
+If we wish to query our data we can grab the last few dates like the following
+
+\begin{lstlisting}[breaklines]
+SELECT * FROM stock 
+WHERE stock_time >= '2017-01-01 00:00:00+0200' 
+  AND stock_time <= '2017-08-13 23:59:00+0200'
+  AND company_name = 'AAA';
+\end{lstlisting}
+
+In python, it is \textit{exactly} the same except instead of hard coding the values, you would use prepared statements. We don't have to worry about the downsides of prepared statements here because Cassandra doesn't normally cache popular query results do to it's write heavy nature.
+
+\begin{lstlisting}[breaklines]
+stock_name = argv[1]
+current_day = now()
+while is_current_day(current_day):
+  data = get_stockdata(stock_name)
+  rows = session.execute("UPDATE stock ticker = ticker + { (\%s, \%s) } ...", 
+  ([data.time, data.price, stock_name, current_day]))
+\end{lstlisting}
+
+In the python case, this type of transition is most likely going to get CPU bound so running multiple scripts with different stock tickers is recommended.
 
 \section{Tuning Params}
 
@@ -278,7 +368,6 @@ And the write consistency to ALL with the following command
 
 For write heavy/read light workloads, set the consistency vice versa as above. 
 
-
 \subsection{Balanced Workloads}
 For the case where you need a balanced workload, set both consistencies in the session to QUORUM, so you get consistent results in both reads and writes with high probability.
 
@@ -292,11 +381,11 @@ Although cassandra gives you a lot of tunability parameters there are practices 
 \item Try not to store your data on multiple separate tables to join later. Cassandra is part of the wide column store family meaning that
 \end{enumerate}
 
-
 \section*{References}
+"How To Run a Multi-Node Cluster Database with Cassandra on Ubuntu 14.04 | DigitalOcean." How To Run a Multi-Node Cluster Database with Cassandra on Ubuntu 14.04 | DigitalOcean. Digital Ocean, 31 Mar. 2016. Web. 09 Apr. 2017.
+"Configuring Data Consistency." Configuring Data Consistency. Datastax, 30 Mar. 2017. Web. 09 Apr. 2017.
+
 https://www.digitalocean.com/community/tutorials/how-to-run-a-multi-node-cluster-database-with-cassandra-on-ubuntu-14-04
 https://docs.datastax.com/en/cassandra/2.1/cassandra/dml/dml_config_consistency_c.html
-
-
 
 \end{document}
