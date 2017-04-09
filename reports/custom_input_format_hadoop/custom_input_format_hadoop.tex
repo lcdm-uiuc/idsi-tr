@@ -1,0 +1,164 @@
+\documentclass[9pt,twocolumn,twoside]{idsi}
+% Defines a new command for the horizontal lines, change thickness here
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\renewcommand{\headrulewidth}{2pt}
+\fancypagestyle{plain}{%
+  \fancyhead[L]{
+    \begin{tabular}{ll}
+%        \includegraphics[scale=0.15]{figs/ncsa_vertical}
+    \end{tabular}
+  }
+  \fancyhead[C]{
+      	\begin{tabular}[m]{c}
+		  	\fontsize{20}{20} Illinois Data Science Initiative
+		\end{tabular}
+  }
+
+  \fancyhead[R]{
+    \begin{tabular}{ll}
+%	  	\includegraphics[scale=0.125]{figs/ill}
+  	\end{tabular}
+  }
+
+  \fancyfoot[C]{\thepage}
+}
+\pagestyle{plain}
+\def \report_title {Processing Custom Input With Hadoop}
+\author[1,3]{Nishil Shah}
+\author[2,3]{Professor Robert J. Brunner}
+\affil[1]{National Center For Supercomputing Applications (NCSA)}
+\affil[2]{Laboratory for Computation, Data, and Machine Learning}
+\affil[3]{Illinois Data Science Initiative}
+\title{Processing Custom Input With Hadoop}
+
+\begin{abstract}
+By implementing our own FileInputFormat and RecordReader for MapReduce, we can gain control over how Hadoop reads files, constructs input splits, and builds key-value pairs for the mapper.
+\end{abstract}
+
+\begin{document}
+
+\begin{titlepage}
+\center
+\textsc{\LARGE Illinois Data Science Initiative}\\[1.5cm]
+\textsc{\Large Technical Reports}\\[0.5cm] \HRule \\[0.4cm]
+{\huge \bfseries Processing Custom Input with Hadoop } \\[0.4cm] \HRule \\[1.5cm]
+\Large \emph{Author:}\\ Nishil Shah \\[3cm]
+{\large February 23, 2017}\\[3cm] % Date
+%\includegraphics{Logo}\\[1cm] % uncomment if you want to place a logo
+\vfill
+\end{titlepage}
+%\include{cover}
+
+\maketitle
+
+\section{Introduction}
+Hadoop includes a collection of input formats (DBInputFormat, KeyValueTextInputFormat, NLineInputFormat, etc...) used to read data files in those respective forms. Typically, Hadoop MapReduce jobs split input data into individual sections, operating on each separately. In some cases, it becomes necessary to customize input splits to avoid reading incomplete data. Also, we may want to read files in obscure formats. We can accomplish this by writing our own FileInputFormat and RecordReader classes. Specifically, in this report we will read entire files at once.
+
+\section{Assumptions}
+This technical report assumes:
+\begin{itemize}
+    \item We have the Blockchain downloaded, as shown in "placeholder\_report\_name".
+    \item The data is stored on HDFS, as explained in "placeholder\_report\_name".
+\end{itemize}
+
+\section{The Data}
+At the time of writing, the Blockchain is stored in a compressed format of over 450,000 binary files. Each file represents one block of the chain. Furthermore, each file contains block metadata as well as a sequence of confirmed transactions. Directly extracting data from a large number of files in this format would be unnecessary difficult and computationally expensive. The files also contain a lot of extraneous information we would like to ignore. Therefore, we will apply MapReduce to transform the Blockchain into a more friendly form.
+\section{FileInputFormat}
+
+The FileInputFormat class is primarily responsible for creating input splits from files. It also creates a RecordReader which builds key-value pairs from each InputSplit.
+
+To create a custom BlockFileInputFormat we extend FileInputFormat<K,V> where K and V are types of the output key and value pairs. For our purposes, we will use NullWritable and BytesWritable, respectively. NullWritable reads/writes no bytes; we use it as a placeholder for the key. BytesWritable, as the name suggests, stores a sequence of bytes. To prevent splitting the input file, we simply override \lstinline{isSplitable()} as shown below.
+
+\lstset{language=Java}
+\begin{lstlisting}
+@Override
+protected boolean isSplitable(JobContext context, Path filename) {
+    return false;
+}
+\end{lstlisting}
+
+We will need to construct our own RecordReader. So, we add the following:
+
+\begin{lstlisting}
+@Override
+public RecordReader<NullWritable, BlockWritable> createRecordReader(Input split, TaskAttemptContext context) {
+    return new BlockFileRecordReader();
+}
+\end{lstlisting}
+
+That is all we need to implement in our custom FileInputformat class.
+
+\section{RecordReader}
+
+As explained previously, RecordReader<K,V> builds key-value pairs from the input and passes them to the mapper. Let's create our custom BlockFileRecordReader. First, we instantiate class variables to hold our input data, generated key-value pair, and a flag:
+
+\begin{lstlisting}
+private InputSplit inputSplit;
+private Configuration conf;
+private boolean processedBlockFile = false;
+
+private NullWritable key = NullWritable.get();
+private BytesWritable value = new BytesWritable();
+\end{lstlisting}
+
+In general, the \lstinline{nextKeyValue()} function is responsible for reading the InputSplit (the entire file in our case) to set the class' key and value. As previously mentioned, our key is type NullWritable and value is type BytesWritable. In \lstinline{nextKeyValue()}, we read in the bytes of the InputSplit and set the value to those bytes.
+
+We could do further processing on those bytes in this function to extract specific data if we wanted to. Then, we would need to construct custom Writable objects to pass to the mapper. This is explained in detail in "Building Writable Data Types for Hadoop". Instead, we leave this work for the mapper.
+
+Our function looks like this:
+
+\begin{lstlisting}
+public boolean nextKeyValue() throws IOException {
+    if(!processedBlock) {
+        //setup
+        FileSplit fileSplit = (FileSplit)inputSplit;
+        int splitLength = (int)fileSplit.getLength();
+        byte[] blockBytes = new byte[splitLength];
+        //get file
+        Path filePath = fileSplit.getPath();
+        FileSystem fileSystem = filePath.getFileSystem(conf);
+        //read bytes
+        FSDataInputStream in = null;
+        try {
+            in = fileSystem.open(filePath);
+            IOUtils.readFully(in, blockBytes, 0, blockBytes.length);
+            value.set(blockBytes, 0, blockBytes.length);
+        } finally {
+            IOUtils.closeStream(in);
+        }
+        return processedBlock = true;
+    }
+    return false;
+}
+\end{lstlisting}
+
+To successfully extend RecordReader, we must also override the functions \lstinline{getCurrentKey()}, \lstinline{getCurrentValue()}, \lstinline{getProgress()}, and \lstinline{close()}. \lstinline{getProgress()} returns how much of the input the RecordReader has processed (0.0 - 1.0). Since we only use each FileSplit once, we can leave \lstinline{close()} empty.
+
+\section{Putting It All Together}
+
+Since our custom FileInputFormat and RecordReader are in separate Java files, we package them by adding \lstinline{package blockparser;} at the top of each file. To assure the classes are found at runtime, we move them inside a new directory \lstinline{blockparser} in the project directory.
+
+Finally, to put our custom FileInputFormat to use in our main MapReduce driver, we \lstinline{import blockparser.BlockFileInputFormat;} and configure the Job as follows:
+
+\begin{lstlisting}
+Job job = Job.getInstance(conf, "format blockchain");
+//...other configurations
+job.setInputFormatClass(BlockFileInputFormat.class);
+\end{lstlisting}
+
+Our mapper will now receive a BytesWritable instance which contains the entire contents of a block file. The map function will then parse the bytes using an external library, \emph{bitcoinj}. From that, we construct BlockWritable and TransactionWritable instances which can be sent to the reducer for final processing. More information on this project can be found in Technical Report \emph{xxxx}.
+
+\section{Using External Libraries With Hadoop}
+
+Luckily, there exists an open source package called \emph{bitcoinj} which we can use to parse the byte contents of each block file. The \emph{bitcoinj} library includes functionality to generate a Block object from this sequence of bytes. From this Block, we can extract just the information we need into custom data types, BlockWritable and TransactionWritable for use in MapReduce. Refer to Technical Report "Building Writable Data Types for Hadoop" to learn about creating custom key and value types for Hadoop MapReduce.
+
+To compile and run MapReduce using an external jar, add the jar to the classpath. By running \lstinline{echo $HADOOP_CLASSPATH} on the command-line, you'll see a list of directories that belong to Hadoop's classpath on your system. Moving the jar (\emph{bitcoinj.jar} in our case) to any of those directories does the trick. In addition, the following configuration should be added to your job in the main driver to ensure the jar is located during runtime.
+
+\begin{lstlisting}
+job.addFileToClassPath("path/to/bitcoinj.jar");
+\end{lstlisting}
+
+\section{Conclusion}
+Hadoop makes it easy to process data in various formats. By writing custom FileInputFormat and RecordReader classes, we can customize the way Hadoop splits and reads input for use in MapReduce.
+\end{document}
