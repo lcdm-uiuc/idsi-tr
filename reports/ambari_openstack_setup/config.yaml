@@ -1,0 +1,18 @@
+version: 0.0.1
+report_key: ambari_nebula
+report_title: Setting up Ambari on Openstack Nebula
+organizations:
+  - National Center For Supercomputing Applications (NCSA)
+  - Laboratory for Computation, Data, and Machine Learning
+  - Univeristy of Illinois
+authors:
+  Quinn Jarrell:
+    - 1
+    - 2
+    - 3
+  Professor Brunner:
+    - 1
+    - 2
+    - 3
+prereqs:
+  - None

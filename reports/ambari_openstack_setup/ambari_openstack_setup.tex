@@ -1,36 +1,6 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
-% Defines a new command for the horizontal lines, change thickness here
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
-\usepackage{listings}
-\usepackage[obeyspaces]{url}
-\renewcommand{\headrulewidth}{2pt}
-\fancypagestyle{plain}{%
-  \fancyhead[L]{
-    \begin{tabular}{ll}
-%        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
-    \end{tabular}
-  }
-  \fancyhead[C]{
-      	\begin{tabular}[m]{c}
-		  	\fontsize{20}{20} Illinois Data Science Initiative    	
-		\end{tabular}
-  }
 
-  \fancyhead[R]{
-    \begin{tabular}{ll}
-%	  	\includegraphics[scale=0.125]{figs/ill}  		
-  	\end{tabular}
-  }
-  
-  \fancyfoot[C]{\thepage}
-}
-\pagestyle{plain}
-\def \report_title {Setting up Ambari on Openstack Nebula}
-\author[1]{Quinn Jarrell}
-\author[2]{Professor Robert J. Brunner}
-\affil[1]{National Center For Supercomputing Applications (NCSA)}
-\affil[2]{Laboratory for Computation, Data, and Machine Learning}
-\title{Setting up Ambari on Openstack Nebula}
+\input{config.cls}
 
 \begin{abstract}
 
@@ -38,7 +8,7 @@
 
 \begin{document}
 
-\coverpage{Setting up Ambari on Openstack Nebula}{Quinn Jarrell}
+\makecoverpage
 
 \maketitle
 
