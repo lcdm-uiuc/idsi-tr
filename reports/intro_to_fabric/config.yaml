@@ -1,0 +1,22 @@
+version: 0.0.1
+report_key: intro_fabric
+report_title: Introduction to Fabric for Cluster Management
+organizations:
+  - National Center For Supercomputing Applications (NCSA)
+  - Laboratory for Computation, Data, and Machine Learning
+  - Univeristy of Illinois
+authors:
+  Benjamin Congdon:
+    - 1
+    - 2
+    - 3
+  Quinn Jarrell:
+    - 1
+    - 2
+    - 3
+  Professor Brunner:
+    - 1
+    - 2
+    - 3
+prereqs:
+  - None

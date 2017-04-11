@@ -1,0 +1,30 @@
+version: 0.0.1
+report_key: intro_spark
+report_title: Setting up Spark for Python
+organizations:
+  - National Center For Supercomputing Applications (NCSA)
+  - Laboratory for Computation, Data, and Machine Learning
+  - Univeristy of Illinois
+authors:
+  Sameet Sapra:
+    - 1
+    - 2
+    - 3
+  Joshua Change:
+    - 1
+    - 2
+    - 3
+  Benjamin Congdon:
+    - 1
+    - 2
+    - 3
+  Quinn Jarrell:
+    - 1
+    - 2
+    - 3
+  Professor Brunner:
+    - 1
+    - 2
+    - 3
+prereqs:
+  - None

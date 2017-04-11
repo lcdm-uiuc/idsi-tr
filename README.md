@@ -45,11 +45,12 @@ We have loads of topics to choose from right now we have the following ideas lis
 ## Checklist
 
 Make sure to 
+* Generate a config.yaml for each new tech report you create (look in sample for a template)
 * List prerequisite knowledge (Make sure that your technical report prerequisite knowledge doesn't create a cycle)
 * Links to other technical reports
 * List intended audience at beginning of report
 * Links to additional information
-* Versioning **TBD How to do**
+* List the version in the config file
 * Shouldn’t read like a novel or be a written code repository
 
 ## Authorship
@@ -77,7 +78,7 @@ First, take a look at the rest of the stuff in the repository (try to pick somet
 
 ## Reviewing
 
-Once you feel that you have a good first draft, make a pull request to master with your document. Have people review it, edit the document and continue that process until the document is in a semi ready state
+Once you feel that you have a good first draft, make a pull request to master with your document. Have people review it, edit the document and continue that process until the document is in a semi ready state. We will then mirror what is on master to a public repo as reports become available.
 
 ## Mirroring
 
