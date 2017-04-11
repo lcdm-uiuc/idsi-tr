@@ -5,8 +5,9 @@ DIRECTORIES=$(dir $(REPORTS))
 CONFIGS=$(addsuffix config.cls,$(DIRECTORIES))
 REPORTS_PDF=$(addsuffix .pdf,$(REPORTS))
 TEXTMP_DIR=.textmp
-all: reports
+BIB = bibtex
 
+all: reports
 .PHONY: all
 
 reports: $(REPORTS_PDF)
