@@ -34,7 +34,6 @@
 
 \begin{abstract}
 Model selection for machine learning algorithms is a useful tool to decide which machine learning technique to use for data analysis. This model selection algorithm for Apache Spark's MLlib library allows a user to select and use the most suited machine learning algorithm without requiring the user to have knowledge of the intricacies involved in machine learning theory.
-%Model selection for machine learning algorithms is a useful tool for a programmer who does not want to research machine learning, but still wants to use these algorithms in their work. This model selection algorithm for Apache Spark's MLlib library allows a user to practically use machine learning without knowing the intracacies of the theory.
 \end{abstract}
 
 \begin{document}
@@ -46,9 +45,6 @@ Model selection for machine learning algorithms is a useful tool to decide which
 
 \section{Introduction} 
 Machine learning is a very useful tool for data analysis, but utilizing it requires an understanding of complex mathematics and statistics. This is why many libraries, like Scikit-learn \cite{scikit_learn} and Apache Spark's MLlib \cite{spark_mllib}, abstract the complex mathematics away into simple functions that can be used given a basic understanding of the library's language. These libraries are immensely helpful for simplifying the process of using machine learning techniques on a dataset. However, the problem remains of choosing the correct technique or machine learning model to use with a dataset. Due to the vast number of machine learning algorithms each with their own specific set of parameters and assumptions, this can be a rather difficult problem. 
-% While this helps programmers who do not have much machine learning background use machine learning, there still is a problem: 
-% with all the algorithms to choose from, each with their own separate parameters and assumptions, even with this abstraction it still takes up time to research which algorithm works the best.
-%How about : due to the vast number of ML algos, one would still need to know which algo to use
 This paper outlines a solution in the form of a model selection algorithm in Apache Spark's MLlib that, given a few parameters, will select the best algorithm for the programmer and run it on the dataset given. 
 
 \section{Assumptions}
@@ -159,9 +155,6 @@ For unsupervised learning algorithms, it also trains on the smaller dataset thro
 
 Below is the code for choosing which regression model works best. The performRegression function trains the models on the sample data and returns which model is the best given the sample data. 
 
-%Thats a llllllllllllllllllloooooooooottttttttttttttttttttt of code
-  %yes but it is the only code we have in the paper
-  	%how bout split it up then or something. Its like a page and a half of straight code
 
 \begin{lstlisting}[language=Python]
 def performRegression(data):
@@ -249,7 +242,6 @@ The data accuracy gives us the percent of data which the model predicted correct
 \subsubsection{Root Mean Squared Error (RMSE)} \label{rmse}
 
 For regression algorithms, explained variance should be maximized and the root mean squared error (RMSE) should be minimized. 
-%the way to tell how good a predictor is is by maximizing the explained variance and minimizing the root mean squared error (RMSE). 
 The explained variance is the amount of variance in the data that is explained by the model. Let X be the observed value, \^{X} be the predicted value, and n be the amount of predictions made. Then the root mean squared error is the calculated by 
 
 \begin{equation}
@@ -325,10 +317,6 @@ Overall, the model selection algorithm outlined in this paper is an excellent to
 Special thanks go to Quinn Jarrell, Bhuvan Venkatesh, Professor Robert J. Brunner, and the rest of the CS199 staff for providing the knowledge needed to complete this project. We would also like to thank the National Center for Supercomputing Applications for providing us with the Nebula cluster. 
 
 \begin{thebibliography}{9}
-
-%\url{http://spark.apache.org/docs/latest/ml-guide.html}
-%\url{http://statweb.stanford.edu/~susan/courses/s60/split/node60.html}
-%\url{http://scikit-learn.org/stable/tutorial/machine_learning_map/}
 
 \bibitem{spark_mllib} 
 "Machine Learning Library (MLlib) Guide." MLlib: Main Guide - Spark 2.1.0 Documentation. N.p., n.d. Web. 13 Apr. 2017.
