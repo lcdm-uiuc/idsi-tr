@@ -3,7 +3,7 @@
 \input{config.cls}
 
 \begin{abstract}
-
+This technical report details a guide for setting up Ambari Openstack. 
 \end{abstract}
 
 \begin{document}
@@ -13,20 +13,20 @@
 \maketitle
 
 \section{Introduction}
-This technical report details the advantages, disadvantages, and a guide on setting up Ambari on Openstack. We refer to individual virtual machines as nodes. The included scripts used within this report are all included in the scripts directory under the name openstack\_setup.py. 
+The Openstack software enables many private organizations to set up private clouds running on their own datacenters. We refer to individual virtual machines as nodes. The included scripts used within this report are all included in the scripts directory under the name openstack\_setup.py. 
 
 \section{About Openstack}
-The Openstack software enables many private organizations to setup private clouds running on their own datacenters. Openstack presents a management system for virtual computers with similar features to public clouds like Amazon Web Services and Google Cloud Platform. The National Center for Supercomputing Applications (NCSA) at the University of Illinois Urbana-Champaign (UIUC) runs an extensive deployment of Openstack. Many research groups within UIUC depend on Openstack to provide a reliable infrastructure to deploy distributed programs.
+Openstack presents a management system for virtual computers with similar features to public clouds like Amazon Web Services and Google Cloud Platform. The National Center for Supercomputing Applications (NCSA) at the University of Illinois Urbana-Champaign (UIUC) runs an extensive deployment of Openstack. Many research groups within UIUC depend on Openstack to provide a reliable infrastructure to deploy distributed programs.
 
 \section{About Ambari}
-Some of the most desirable distributed applications deployed on NCSA are Apache Hadoop and Apache Spark. Apache Ambari provides a managed system of deploying Apache Hadoop, Spark, and several other distributed applications to a cluster of computers on Openstack. It provides a Web interface which provides not only a method installing new services but also an extensive monitoring system to maintain distributed applications. It has enabled the Illinois Data Science Initiative (iDSI) to quickly set up Hadoop and Spark clusters required for teaching an Applied Cloud Computing class and facilitating IDSi's research.
+Some of the most desirable distributed applications deployed on NCSA are Apache Hadoop and Apache Spark. Apache Ambari provides a managed system of deploying Apache Hadoop, Spark, and several other distributed applications to a cluster of computers on Openstack. It provides a Web interface which provides not only a method installing new services but also an extensive monitoring system to maintain distributed applications. It has enabled the Illinois Data Science Initiative (iDSI) to quickly set up Hadoop and Spark clusters required to teach Applied Cloud Computing (CS199) and facilitate IDSi’s research.
 
 \section{Virtual Machine Sizes}
-We have found deploying Hadoop/Spark clusters to very few large machines works much better than deploying to lots of medium sized virtual machines. The goal is always to avoid network communication costs and to have as much RAM as possible. Our clusters worked very well with 64 GB of ram and 24 VCPUs. There is an extensive guide on sizing your cluster from \href{https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_cluster-planning-guide/bk_cluster-planning-guide-20150721.pdf}{Hortonworks}. We rely on network drives to provide our storage which does hamper the performance of our cluster but is provision from Openstack. Typically each node has two volumes of 1 TB each.
+We have found deploying Hadoop/Spark clusters to very few large machines works much better than deploying to lots of medium sized virtual machines. The goal is always to avoid network communication costs and to have as much RAM as possible. Our clusters worked very well with 64 GB of RAM and 24 VCPUs. There is an extensive guide on sizing your cluster from \href{https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_cluster-planning-guide/bk_cluster-planning-guide-20150721.pdf}{Hortonworks}. We rely on network drives to provide our storage, which does hamper the performance of our cluster, but is a provision from Openstack. Each node typically has two 1 TB volumes.
 
 
 \section{Setting up the Virtual Network on Openstack}
-We first need to configure Openstack to allocate all virtual machines for our cluster in a private network. Our network was limited to 254 nodes so we used the settings:
+We first need to configure Openstack to allocate all virtual machines for our cluster in a private network. Our network was limited to 254 nodes, so we used the settings:
 
 \begin{verbatim}
   Network Address : 192.168.0.0/24
@@ -35,7 +35,7 @@ We first need to configure Openstack to allocate all virtual machines for our cl
 \end{verbatim}
 
 \section{Creating a secure Ambari Security Group}
-Ambari should be only accessible through the web interface. Openstack provides a set of connection blocking rules called Security Groups. The Security Groups are listed under Compute/Access\_and\_Security in the Openstack Dashboard. To secure Ambari a new security group should be created and assigned to all nodes launched. We used the following rules for our security group:
+Ambari should be only accessible through the web interface. Openstack provides a set of connection blocking rules called Security Groups. The Security Groups are listed under Compute/Access\_and\_Security in the Openstack Dashboard. To secure Ambari, a new security group should be created and assigned to all nodes launched. We used the following rules for our security group:
 
 \begin{verbatim}
 
@@ -62,7 +62,7 @@ With dots replaced with dashes, it is an acceptable domain name and the .local i
 
 \subsection{Hosts File Example}
 
-So our hosts file ends up looking this:
+The hosts file ends up looking this:
 \begin{verbatim}
 127.0.0.1   localhost localhost.localdomain
 127.0.0.1   localhost4 localhost4.localdomain4
@@ -160,7 +160,7 @@ disable_huge_pages \
 
 \subsection{Disabling Firewalls}
 
-To turn off the firewall for all nodes within the cluster. We suggest implementing the firewall with Openstack security groups instead. See the Openstack configuration report for details. To turn the firewall off run the disable\_firewall function with the host names of the computers in your cluster.
+To turn off the firewall for all nodes within the cluster, we suggest implementing the firewall with Openstack security groups instead. See the Openstack configuration report for details. To turn the firewall off run the disable\_firewall function with the host names of the computers in your cluster.
 
 \begin{verbatim}
 fab -f setup-fqdn.py \
@@ -179,7 +179,7 @@ turn_on_ntp \
 
 
 \subsection{Disabling SELinux}
-SELinux is enabled by default for CentOS 6. It provides a system of access security for the kernel. Unfortunately many application including Ambari do not work well with SELinux. To disable it run
+SELinux is enabled by default for CentOS 6. It provides a system of access security for the kernel. Unfortunately, many applications, including Ambari, do not work well with SELinux. To disable it run
 
 \begin{verbatim}
 fab -f setup-fqdn.py \
@@ -198,7 +198,7 @@ import_ambari_repo \
 
 \subsection{Setting up Ambari Server}
 
-Finally you should set up the Ambari web server on \emph{one} of the nodes in the cluster. This node should have all of the above functions run on it already. This node will operate the web interface to manage your cluster. It will also most likely be the only node accessible from the outside internet.
+Finally you should set up the Ambari web server on \emph{one} of the nodes in the cluster. This node should have all of the above functions run on it already. This node will operate the web interface to manage your cluster, and it will also most likely be the only node accessible from the outside internet.
 
 \begin{verbatim}
 fab -f setup-fqdn.py \
@@ -211,10 +211,10 @@ where \$MASTERNODE is an IP address or FQDN of one of the nodes in your cluster.
 Follow the Ambari setup questions, the defaults are fine.
 
 \section{Configuring Ambari}
-Now the web interface will be available at your master node's floating IP address at port 8080. For instance our cluster was available at 165.2.1.3:8080 . When you first access the interface, the default username and password is admin. After logging in, \textbf{you should immediately change the default password for the admin account} This can be done by clicking on Users, then on the admin account, and finally clicking Change Password. \textbf{If you do not do this, your Ambari will be exposed to the general internet.}
+Now the web interface will be available at your master node's floating IP address at port 8080. For instance, our cluster was available at 165.2.1.3:8080 . When you first access the interface, the default username and password is admin. After logging in, \textbf{you should immediately change the default password for the admin account}. This can be done by clicking on Users, then on the admin account, and finally clicking Change Password. \textbf{If you do not do this, your Ambari will be exposed to the general internet.}
 
 \subsection{Adding Servers to Ambari}
-After naming your new cluster, you should add new hosts by listing their FQDNs like 192-168-0-2.local. Note the dashes instead of dots for the FQDN. Several nodes can be added through simple pattern expressions like 192-168-0-[2-5].local . This will add hosts 192-168-0-2.local, 192-168-0-3.local, 192-168-0-4.local, 192-168-0-5.local. After entering the hosts, select your private SSH key or copy paste it into the box. It is needed for Ambari to SSH into each machine to install services. Also \textbf{make sure to change the SSH User Account from root to centos} since Centos 6 does not allow root login by default. After adding the hosts, registration should take a few minutes to confirm the hosts are healthy. Then select the services you want and follow the onscreen guide. The default assignments for masters and slaves should work.
+After naming your new cluster, you should add new hosts by listing their FQDNs - like 192-168-0-2.local. Note the dashes instead of dots for the FQDN. Several nodes can be added through simple pattern expressions like 192-168-0-[2-5].local . This will add hosts 192-168-0-2.local, 192-168-0-3.local, 192-168-0-4.local, 192-168-0-5.local. After entering the hosts, select your private SSH key or copy paste it into the box. It is needed for Ambari to SSH into each machine to install services. Also \textbf{make sure to change the SSH User Account from root to centos} since Centos 6 does not allow root login by default. After adding the hosts, registration should take a few minutes to confirm the hosts are healthy. Then, select the services you want and follow the onscreen guide. The default assignments for masters and slaves should work.
 
 
 
@@ -225,3 +225,5 @@ After naming your new cluster, you should add new hosts by listing their FQDNs l
 
 
 \end{document}
+
+
