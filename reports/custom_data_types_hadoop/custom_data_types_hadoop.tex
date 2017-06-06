@@ -1,7 +1,10 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
 
 \input{config.cls}
-
+\usepackage{listings}
+\lstset{
+	breaklines = true	
+}
 \begin{abstract}
 Writable objects in Hadoop can be serialized, allowing for efficient, secure transmission across a system. Let's learn how to construct our own Writable data types.
 \end{abstract}
