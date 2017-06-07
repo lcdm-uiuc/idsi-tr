@@ -7,6 +7,9 @@ An introduction to setting up Apache Spark with Python
 \end{abstract}
 
 \usepackage{listings}
+\lstset{
+breaklines = true
+}
 \begin{document}
 
 \makecoverpage
@@ -99,19 +102,16 @@ You should see the Python REPL come up with the version that was just installed 
 
 This example is taken from the Apache Spark website$^2$. It runs a parallelized operation to compute the value of $\pi$ and is a good example to see the benefits of Spark.
 
-\begin{mdframed}
-\begin{verbatim}
+\begin{lstlisting}
 def inside(p):
     x, y = random.random(), random.random()
     return x*x + y*y < 1
 
 samplen = xrange(0, NUM_SAMPLES)
-count = sc.parallelize(samplen) \
-             .filter(inside).count()
+count = sc.parallelize(samplen).filter(inside).count()
 pi_approx = (4.0 * count / NUM_SAMPLES)
 print "Pi is roughly %f" % pi_Approx
-\end{verbatim}
-\end{mdframed}
+\end{lstlisting}
 
 Once you've written your Python code, you can compile and deploy it with:
 \begin{verbatim}

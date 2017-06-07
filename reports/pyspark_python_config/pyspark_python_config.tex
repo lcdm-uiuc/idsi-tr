@@ -1,10 +1,12 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
 \usepackage{listings}
-
+\lstset{
+	breaklines = true	
+}
 \input{config.cls}
 
 \begin{abstract}
-PySpark requires requires Python 2.6 or later, and does not officially support Python 3. However, with only minor configuration changes, it is possible to successfully run a Spark cluster using Python 3 for both PySpark drivers and workers.
+PySpark requires Python 2.6 or later, and does not officially support Python 3. However, with only minor configuration changes, it is possible to successfully run a Spark cluster using Python 3 for both PySpark drivers and workers.
 \end{abstract}
 
 \begin{document}
@@ -24,14 +26,14 @@ This technical report will make the following assumptions:
 \end{itemize}
 
 \section{Motivation}
-While Python 3 is not yet the \emph{de facto} standard in the Python community, the trend seams to be moving in the direction of Python 3 adoption. Thus, it behooves members of the data science community to begin to transition to Python 3 for cloud computing.
+While Python 3 is not yet the \emph{de facto} standard in the Python community, the trend seems to be moving in the direction of Python 3 adoption. Thus, it behooves members of the data science community to begin to transition to Python 3 for cloud computing.
 
 Additionally, we observed that running the default Python version that shipped with our CentOS image, Python 2.6.6, had many more issues being installed concurrently with Python 2.7 than any version of Python 3. PySpark requires Python 2.7+, and Ambari requires Python 2.6.6. As a result, we found that a more stable equilibrium was met while running our PySpark workers on Python 3 and leaving the Python 2.* installation on the workers undisturbed.
 
 Furthermore, we researched the available solutions for maintaining and distributing Python packages across our cluster, and felt that the built-in mechanisms for distributing packages at runtime (i.e. the \texttt{-\--py-files} argument for spark-submit) to be lacking. Not only does this require the operator to have built versions of all the packages they wish to include in their job, but it also means that using packages like \texttt{nltk}, which download external datasets, are difficult to include in jobs.
 
 \section{Installing Python 3}
-To run the Spark Cluster on top of Python 3, an identical version Python 3 should be installed on all data nodes, and anywhere that a driver will be run.
+To run the Spark Cluster on top of Python 3, an identical version Python 3 should be installed on all data nodes and anywhere that a driver will be run.
 
 Usually, this install process is rather simple: use the package manager for your OS to install the current Python 3 package.
 
@@ -102,7 +104,7 @@ Keeping package versions consistent across nodes is important, as is assuring al
 
 \subsection{Installing New Packages}
 
-When a cluster user wants to make add a package to the cluster, have them add the package and desired version to the cluster's \texttt{requirements.txt}. The installed version of a package can be obtained with this command:
+When a cluster user wants to add a package to the cluster, have them add the package and desired version to the cluster's \texttt{requirements.txt}. The installed version of a package can be obtained with this command:
 \begin{verbatim}
 $ pip freeze | grep <Package>
 \end{verbatim}
@@ -122,9 +124,9 @@ $ fab -f package_management.py install_requirements
 \end{verbatim}
 
 \subsection{Updating Packages}
-Updating packages can be done manually, by changing the version required in the cluster's \texttt{requirements.txt}.
+Updating packages can be done manually by changing the version required in the cluster's \texttt{requirements.txt}.
 
-To do this in a clean way without disturbing the system's package, we will use \texttt{virtualenv} to create a new package environment. Running \texttt{virtualenv} creates a folder that contains the binary distribution of Python, Pip, and other tools. It also creates a new location within the virtual environment folder for packagse. \texttt{virtualenv} is a useful tool for testing Python environments without affecting the environment at the system level.
+To do this in a clean way without disturbing the system's package, we will use \texttt{virtualenv} to create a new package environment. Running \texttt{virtualenv} creates a folder that contains the binary distribution of Python, Pip, and other tools. It also creates a new location within the virtual environment folder for packages. \texttt{virtualenv} is a useful tool for testing Python environments without affecting the environment at the system level.
 
 To update all packages automatically, we run \texttt{pip} in a Python \texttt{virtualenv} with its update flag to pull down the latest version numbers. (Note that this requires \texttt{virtualenv} to be installed.)
 
@@ -137,7 +139,7 @@ $ deactivate
 $ rm -r venv/
 \end{verbatim}
 
-Once the \texttt{requirements.txt} has been updated, run the install Fabric task again and the nodes will be updated similarly.
+Once the \texttt{requirements.txt} has been updated, run the install Fabric task again and the nodes will be updated.
 
 Updating the \texttt{requirements.txt} in this fashion can easily be automated using Fabric. If you are using our Fabfile distribution, run the following command:
 \begin{verbatim}
@@ -149,7 +151,7 @@ This Fabric task only updates the local \texttt{requirements.txt}, and does not 
 \section{Conclusion}
 Using PySpark with Python 3 requires Python 3 to be installed on all hosts in the cluster. Once this installation is completed and the PySpark configuration is updated accordingly, PySpark should accept the Python 3 version and use it without issues.
 
-Cluster package management is made easier by transitioning away from the system version of Python (usually an older Python 2 distribution), and can be automated by Fabric. Managing a coherent set of pacakges across the cluster is important for the stability and utility of PySpark jobs.
+Cluster package management is made easier by transitioning away from the system version of Python (usually an older Python 2 distribution), and can be automated by Fabric. Managing a coherent set of packages across the cluster is important for the stability and utility of PySpark jobs.
 
 \section*{References}
 \begin{itemize}
@@ -160,3 +162,5 @@ Cluster package management is made easier by transitioning away from the system 
 
 
 \end{document}
+
+

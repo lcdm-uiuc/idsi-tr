@@ -1,7 +1,10 @@
 \documentclass[9pt,twocolumn,twoside]{idsi}
 
 \input{config.cls}
-
+\usepackage{listings}
+\lstset{
+	breaklines = true
+}
 \begin{abstract}
 By implementing our own FileInputFormat and RecordReader for MapReduce, we can gain control over how Hadoop reads files, constructs input splits, and builds key-value pairs for the mapper.
 \end{abstract}
@@ -107,7 +110,7 @@ Job job = Job.getInstance(conf, "format blockchain");
 job.setInputFormatClass(BlockFileInputFormat.class);
 \end{lstlisting}
 
-Our mapper will now receive a BytesWritable instance which contains the entire contents of a block file. The map function will then parse the bytes using an external library, \emph{bitcoinj}. From that, we construct BlockWritable and TransactionWritable instances which can be sent to the reducer for final processing. More information on this project can be found in Technical Report \emph{xxxx}.
+Our mapper will now receive a BytesWritable instance which contains the entire contents of a block file. The map function will then parse the bytes using an external library, \emph{bitcoinj}. From that, we construct BlockWritable and TransactionWritable instances which can be sent to the reducer for final processing. More information on this project can be found in Technical Report "Building Writable Data Types for Hadoop".
 
 \section{Using External Libraries With Hadoop}
 
