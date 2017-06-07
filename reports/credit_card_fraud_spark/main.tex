@@ -1,0 +1,347 @@
+\documentclass[9pt,twocolumn,twoside]{idsi}
+% Defines a new command for the horizontal lines, change thickness here
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} 
+\usepackage{listings}
+\lstset{
+	frame=single,
+	breaklines=true,
+    language=Python,
+    postbreak=\raisebox{0ex}[0ex][0ex]
+    {\ensuremath{\color{red}\hookrightarrow\space}}
+}
+\renewcommand{\headrulewidth}{2pt}
+\fancypagestyle{plain}{%
+  \fancyhead[L]{
+    \begin{tabular}{ll}
+%        \includegraphics[scale=0.15]{figs/ncsa_vertical} 
+    \end{tabular}
+  }
+  \fancyhead[C]{
+      	\begin{tabular}[m]{c}
+		  	\fontsize{20}{20} Illinois Data Science Initiative    	
+		\end{tabular}
+  }
+
+  \fancyhead[R]{
+    \begin{tabular}{ll}
+%	  	\includegraphics[scale=0.125]{figs/ill}  		
+  	\end{tabular}
+  }
+  
+  \fancyfoot[C]{\thepage}
+}
+\pagestyle{plain}
+\def \report_title {Credit Card Fraud Detection with Spark Streaming   }
+\author[1]{Arshia Malkani}
+\author[1]{Caren Zeng}
+\author[2]{Professor Robert J. Brunner}
+\affil[1]{National Center For Supercomputing Applications (NCSA)}
+\affil[2]{Laboratory for Computation, Data, and Machine Learning}
+\title{Analyzing Credit Card Fraud Detection with Spark and Spark Streaming}
+
+\begin{abstract}
+This paper outlines methods of predicting credit card fraud accurately in real time using machine learning in Spark Streaming as well as on historical data with Spark. 
+
+\end{abstract}
+
+\begin{document}
+
+\coverpage{Analyzing Credit Card Fraud Detection with Spark and Spark Streaming}{Arshia Malkani\\Caren Zeng\\Professor Robert J. Brunner}
+
+\maketitle
+
+\section{Introduction}
+The goal of this paper is to find a suitable algorithm for predicting credit card fraud by comparing different classification and regression machine learning models in Spark. Considering the massive amounts of credit card data available in the field, the pipelining process of Spark Streaming was combined with machine learning algorithms to accurately predict credit card fraud on live data. 
+\section{Background}
+Credit card fraud detection is an area of active research as a multitudinous host of classification, regression, and machine learning algorithms can be applied to the data. These machine learning algorithms can provide results that can be very valuable in business and technology. Research focusing on credit card fraud detection can be split into real-time and static fraud detection. Static fraud detection involves splitting a dataset into training and test data, and then building and testing a given model on such a dataset. Static fraud detection allows the user to learn about the nature of credit card data by understanding common anomalies that would be encountered. What is more applicable to companies is real-time fraud detection. This is achieved by training a machine learning model with a "stream" of information loaded in windows and tested on incoming data to update the model. Real-time credit card fraud detection may follow the following procedure:
+the first phase is analysis on historical data to build the machine learning model; the second phase uses the model in production to make predictions on live events. \cite{creditcardfraud}
+
+
+
+Additionally, datasets of anonomized credit card data are severely unbalanced, with a disproportionate number of credit card transactions being non-fraudulent. 
+
+
+\includegraphics[scale=0.4]{spark-fraud-1.jpg}
+
+\section{The Data}
+The data used is from the Worldline and the Machine Learning Group of ULB, who recorded  credit card transactions in September 2013 in Europe over a span of two days \cite{dal2015calibrating}. The dataset is a csv file of 65535 rows of anatomized credit card data, including the frequency of usage of the card, the transaction amount, and a binary value indicating fraud (“1”) or non-fraud (“0”). The other 28 features in the dataset were the results of a Principle Component Analysis (PCA) transformation, but due to confidentiality we don't know the original features and other background information. PCA is a statistical procedure that uses orthogonal transformations to convert the dataset of possible correlated variables into a set of values of linearly uncorrelated variables called principle components.
+
+After running a percentage-generating script on our dataset, it was apparent that the dataset was very unbalanced, with only 0.172\% (492  out of 284,807 transactions) labeled as fraudulent. The goal of our research is to train the datasets to handle live data, meaning that despite imbalanced datasets, the generated predictions must still be relatively accurate. 
+
+After extracting the data from the csv file, the data was mapped and filtered to turn the rows containing the amount of money spent, number of times the card was used, whether not it was fraud, and the PCA values into a labeled point. Then, the dataset was split 80\%-20\% into a training and testing dataset. We maximized the training data to adjust for the imbalanced nature of the dataset. To ensure accurate training, each machine learning model was ran 5 trials and generated different random splits of the data for each trial, minimizing the effects of all fraudulent data ending up in exclusively the test or training datasets. All values reported are the average of the 5 trials run for each machine learning algorithm. After training, multiple metrics were used to assess the validity of each model's predictions.
+
+\section{Metrics Explanation}
+
+
+Given that the dataset is heavily imbalanced, standard accuracy measures are not very useful. For example, say that there is one case of fraud among a thousand transactions. A model that would guess all transactions as non-fraudlent would still be accurate 99.9\% of the time. In the instance of credit card fraud, it is most important to minimize the number of false negatives, or instances in which fraud goes uncaught. 
+Thus, it is important to have a metric that can accurately measure the efficacy of different models despite the skew in data. One such metric is precision-recall.
+\cite{rocprecisrecall}
+
+Precision is the number of true positives over the number of true positives plus the number of false positives. Recall is the number of true positives over the number of true positives plus false negatives.
+The precision-recall curve graphs the precision against the recall at different thresholds. The area under the precision-recall (PR) curve is a value between 0 and 1, where a higher number is representative of a better c lassifier. A higher area under PR curve  signifies that the model is maximizing true positives(fraudulent credit card usage) and is a near perfect classifier. 
+
+\includegraphics[scale=0.4]{classifiers.png}
+
+The precision recall curve doesn't account for true negatives, which is what the Receiver Operating Characteristics (ROC) accounts for. The ROC curve graphs the number of false positive rates against the true positives rates. The area under the curve is between 0 and 1, while a higher area indicates more accurate predictions.
+
+\section{Spark Binary Classifiers}
+Credit card fraud detection comes down to a binary classification of fraud or not fraud, in which the categories are distinguished by a threshold. There are many different binary classifiers, and we used five different models to try and detect fraud.
+\subsection{Logistic Regression}
+Logistic regression models are often used to detect credit card fraud. It is a predictive regression analysis that fits the data points as if they are along a continuous function and used to explain the relationship between one dependent binary variable and one or more nominal, ordinal, interval or ratio-level independent variables. 
+These models are built by trying to minimize the sum of the residuals of the following formula:
+\begin{equation}
+f(z) = \frac{L}{1+e^{-z}}
+\end{equation}
+Where z is the input features 
+The formula produces the probability that an interaction is fraud. Providing a range of data allows for an accurate regression model. However, different sets of data may not provide as many features, thus limiting how spread out the data will result to be. 
+
+\begin{lstlisting}
+training, test = data.randomSplit([0.8, 0.2])
+training.cache()
+model = LogisticRegressionWithLBFGS.train(training)
+predictions = test.map(lambda lp:
+(float(model.predict(lp.features)), lp.label))
+metrics = BinaryClassificationMetrics(predictions)
+print("Area under ROC = %s" % metrics.areaUnderROC 
++ "Area under PR = %s" % metrics.areaUnderPR)
+\end{lstlisting}
+
+In our case, the ordinal independent variables would be the purchase amount, number of times the card was used, and the PCA values. The dependent variable would be the binary classification of fraud. Based on the data, logistic regression models try to draw a best-fit function to predict whether data is fraud or not.
+
+\begin{lstlisting}
+Logistic Regression Results
+	Area under the ROC Curve: 0.744860
+	Area under the PR Curve: 0.507774
+        
+\end{lstlisting}
+
+The results shown above are the average of five separate trials conducted by randomly splitting the data into an 80\%-20\% training and testing set and running the model.  
+
+
+The 	 area under the precision-recall curve, computed above, shows that our model was very unaccurate at predicting most of the fraud cases. However, the area under the ROC curve indicates that it is moderatly good at accounting for true negatives.
+
+
+\subsection{Linear Support Vector Machine}
+Linear support vector machine (SVM) plot the data points in n dimensions, where n is how many variables it is given, and then the algorithm fits a hyperplane to separate the classes of data. The hyperplane it generates tries to maximize the space between the two classes, finding the widest margin. It tends to inaccurately predict data points near the decision boundary, which can be an issue if the data is all grouped at the boundary. 
+Linear SVMs tend to be accurate and work well on smaller, cleaner datasets in which the data splits evenly; it isn't suited for larger datasets with overlapping classes. With credit card fraud data, all the fraud cases aren't all going to be absurdly high or low prices, transactions, or other features. This means its harder to distinguish which ones are fraud since there aren't clear boundaries in the dataset. This makes it more challenging, but there can be minute trends in the data that would enable us to actually classify which cases were fraud. 
+
+\begin{lstlisting}
+(trainingData, testData) = normalizedData.randomSplit([0.8,0.2])
+sample = sc.parallelize(trainingData.collect())
+test = sc.parallelize(testData.collect())
+# Build the model
+model = SVMWithSGD.train(sample, iterations=100, step=.00000001)
+# Compute raw scores on the test set
+predictionAndLabels = sample.map(lambda lp: (float(model.predict(lp.features)), lp.label ))
+metrics = BinaryClassificationMetrics(predictionAndLabels)
+# Area under ROC curve and precision-recall curve
+results.append(str(metrics.areaUnderROC) + "\t" + str(metrics.areaUnderPR))
+\end{lstlisting}
+
+\begin{lstlisting}
+Linear SVM Results
+	Area under the ROC Curve: 0.499997
+	Area under the PR Curve: 0.000869
+\end{lstlisting}
+
+These results show that the SVM model tested is abysmal for detecting cases of fraud.
+
+\subsection{Gradient-Boosted Trees}
+Gradient Boosted trees (GBTs) is a regression method for categorical features that iteratively trains decision trees to minimize a loss function. Each iteration predicts the label of each training instance then and then compares the predicted label with the true label. Before the next iteration, the dataset is relabeled to put more emphasis on training instances that yield poor predictions. These can be considered as “focus areas”, although through more iterations, gradient boosted trees may start to overfit data. This phenomena can be explained as GBTs are based off shallow decision trees, which tend to have high bias and low variance. Error is minimized by reducing both bias and variance by aggregating output from many trained models.
+
+\begin{lstlisting}[language=python]
+training, test = data.randomSplit([0.8, 0.2])
+    training.cache()
+# Run training algorithm to build model
+model = GradientBoostedTrees.trainClassifier(training,
+    categoricalFeaturesInfo={}, numIterations=5)
+    # Compute raw scores on the test set
+predictions = model.predict(
+    	test.map(lambda x: x.features))
+labelsAndPredictions = test.map(lambda lp: lp.label).zip(predictions)    
+# Instantiate metrics object
+metrics = BinaryClassificationMetrics(labelsAndPredictions)
+\end{lstlisting}
+
+While building the model, training on iterations of trees continues until the improvement of the validation error (correctness of the model) is less than a certain tolerance generated in the Boosting Strategy method. On occasion, validation error generally decreased then later increases with more training; we did not examine the validation curve as we assumed that with an imbalanced dataset, the validation error will be strictly decreasing. After building our model, we attained a validation/test error of 0.0023, calculated by the formula: error = bias + variance.
+
+\begin{lstlisting}
+Gradient-Boosted Trees Results
+	Area under ROC Curve: 0.930155
+	Area under PR Curve: 0.785731
+\end{lstlisting}
+
+\subsection{Random Forests}
+Random forests work as a large collection of decorrelated decisions trees. Unlike Gradient-Boosted Trees (GBTs), random forests combines many decisions trees in order to reduce the risk of overfitting; these trees can be called fully grown decision trees, which provide low bias and high variance.
+It trains a set of decision trees separately, so the training can be done in parallel. The algorithm injects randomness into the training process so that each decision tree is a bit different, meaning high variance in training data but collectively resulting in low variance of error levels. Randomness is achieved by subsampling the original dataset on each iteration to get a different training set each time. However, training for decision trees is done in the same way as for individual decision trees outside of this algorithm.
+After building the model, we made predictions by aggregating the individual trees’ predictions and classifying using majority vote. The label for each test point is then predicted to be the class that receives the most votes. Our test error was calculated to be 0.00198.
+
+\begin{lstlisting}
+model = RandomForest.trainClassifier(
+    training, numClasses=2, categoricalFeaturesInfo={},
+    numTrees=15, featureSubsetStrategy="auto",
+    impurity='gini', maxDepth=5, maxBins=50
+)    
+# Compute raw scores on the test set
+predictions = model.predict(test.map(lambda x: x.features))
+labelsAndPredictions = test.map(lambda lp: lp.label).zip(predictions)    
+# Instantiate metrics object
+metrics = BinaryClassificationMetrics(labelsAndPredictions)
+\end{lstlisting}
+	
+\begin{lstlisting}
+Random Forests Results
+	Area under the ROC Curve: 0.941476
+	Area under the PR Curve: 0.827634
+\end{lstlisting}
+
+\subsection{Decision Trees}
+Decision trees are trees where the inner tree nodes are in the form of a decision and leaves are final outcomes. For example, an inner node could indicate that the outcome is on its right subtree if the frequency is greater than a given threshold, else the outcome will be on the left. To create the decision tree the data must go though a greedy splitting process in which split points are selected by minimizing the sum squared error.\cite{csahin2011detecting,decisiontrees} The sum squared error will be further minimized as more split points are added to the data. Unfortunately, adding too many split points will cause the decision tree to overfit the test-data. MLLib allows users to determine how generously the algorithm adds split points to the data. Trees are also pruned after spit points are added to improve the prediction performance of the tree.
+
+\begin{lstlisting}
+training, test = data.randomSplit([0.8, 0.2])
+    training.cache()
+# Run training algorithm to build the model
+model = DecisionTree.trainClassifier(training, numClasses=2, categoricalFeaturesInfo={}, impurity='gini', maxDepth=5, maxBins=60)
+# Compute raw scores on the test set
+predictions = model.predict(test.map(lambda x: x.features))
+    labelsAndPredictions = test.map(lambda lp: lp.label).zip(predictions)    # Instantiate metrics object
+metrics = BinaryClassificationMetrics(labelsAndPredictions)
+# Area under ROC curve and precision-recall curve
+results.append(str(metrics.areaUnderROC) + "\t" + str(metrics.areaUnderPR))
+\end{lstlisting} 
+	
+\begin{lstlisting}
+Random Forests Results
+	Area under the ROC Curve: 0.959661
+	Area under the PR Curve: 0.849201
+\end{lstlisting}
+
+\iffalse
+
+\section{Intuition behind Machine Learning Algorithms Chosen}
+Due to the topic of credit card fraud detection, we are dealing with a classification algorithm to accurately predict fraud. 
+In this paper, the focus is on Logistic Regression and Linear SVMs as the PR and ROC curve can be generated. The next step would be using Spark Streaming while making predictions using these machine learning algorithms.  
+\fi
+
+\section{Results} 
+
+Support vector machines produced abysmal results. The area under the precision-recall curves for SVMs was extremely low and reflect the fact that not many true positives were found. This could be because SVM works by separating the data by a hyperplane. Fraud is not necessarily a linear trend due to the complexity and amount of different ways fraud can appear. Therefore, these types of binary classifiers are too simplistic; they do not take into account the multitude of ways that fraud can present itself and the differences between each case.
+
+
+Logistic regression does decently at detecting fraud. It is not the worst one tried but it is not the best either. 
+
+
+The tree family of classifiers did the best out of all the algorithms. This is believed to be because these trees are more suited to take into the context of each type of fraud case. For instance, buying from a grocery store in New Jersey can fraud if the card-holder lives in Illinois, but if they live in New Jersey it is commonplace. It is believed that decision trees can understand these contexts better than the other algorithms and act upon them more deliberately.
+\includegraphics[scale=.4]{sparkStreamingPlot.png}
+
+\section{Spark Streaming}
+
+When Hadoop and Spark first emerged, it opened up opportunities to do computation on massive amounts of customer data. This gave researchers the ability to analyze credit card data, but the next stage was analyzing the data in real-time. Every time a credit card is swiped, the request must be analyzed to confirm whether or not the purchase is legitimate. Due to the time-sensitivity of this process, the model needs to be pre-trained and the data needs to be sent in batches to the model to make predictions. 
+
+Spark Streaming is an extension of Spark that enables high-throughput, fault-tolerant stream processing of live data streams. The data is considered a DStream, or  sequence of RDD objects that are sent to the machine learning model in batches. \cite{stypinski2017apache} Data can be taken from sources such as Kafka, Flume, Twitter, Zero MQ or TCP sockets and processed using functions such as map, reduce, filter, join, and window. The processed data can then be pushed to file systems or databases. \cite{sparkstreaming} 
+
+Spark Streaming accomplishes batched data using windowed computation, in which the transformation is applied to a sliding window of data. In the picture below the window length is 3 and the interval is 2, but these parameters can be changed depending on the application. 
+\includegraphics[scale=0.5]{one.png}
+
+The advantages of the Spark Streaming architecture are performance, dynamic load balancing and resource usage, fast failure, and straggler recovery. Spark Streaming relies on a system of worker nodes each running one or more continuous operations. The "source" operators receive data from ingestion systems and the "sink" operators output to downstream systems. 
+	This architecture improves load balancing, which is an issue caused by the uneven allocation of processing between the worker nodes. Uneven allocation bottlenecks operations since computation becomes dependent on the subset of worker nodes that are taking longer. Spark Streaming's load balancing features help evenly distribute the work load between the nodes by dividing the data into small micro-batches and then allocating computation resources. If a node is taking longer due to an unevenly partitioned system, more nodes are allocated to that task as shown below. 
+    
+   \includegraphics[scale=0.4]{balancing.png}
+
+Spark Streaming also enables fast failure and straggler recovery. With a larger scale, there is a high likelihood of a cluster failing or unpredictable slowing down (stragglers). Normally, the system would have to restart the failed continuous operator on another node and recompute the data. The computation in Spark though is divided into small deterministic tasks, so failed tasks can be relaunched in parallel to the other. This re-computation is distributed across multiple nodes, which makes the recover rate significantly faster. 
+
+It is clear that the distributed nature of Spark Streaming and the ability to leverage the Spark engine improve performance significantly. The micro-batching increases throughput, or the number of actions executed per unit of time. In terms of latency, or the time required to perform some actions, Spark Streaming breaks it down to a few hundred milliseconds per action. Micro-batching inherently adds some latency, but it is only a small component of the pipeline that is automatically triggered after a certain time period. This prevents micro-batching from having a significant effect on performance.
+
+After understanding Spark Streaming's underlying architecture, we applied the technique to our data by running Logistic Regression using live data. 
+
+
+\section{Spark Streams : Predictions using Logistic Regression}
+With Spark Streaming, the dataset was converted to a .txt file and the model was trained on Spark the same way the models for static fraud detection was trained. Before loading in live data, we tested our model with Logistic Regression. The data is then reloaded as a stream from the .txt files. Using the transform function, the section data currently in the stream is converted into an RDD object and used to predict whether or not that instance is credit card fraud.
+Since the RDD object only contains a window of the data, it is more efficient and is able to take in live data to make predictions. 
+
+The code below shows how this is accomplished:
+
+\begin {lstlisting}
+ssc = StreamingContext(sc, 1)
+lines1 = ssc.textFileStream("file:///mnt/vdatanodea/
+	datasets/creditcards/credit/b")
+trainingData = lines1.map(lambda line: 
+	LabeledPoint( float(line.split(" ")[1]), 
+    [(line.split(" ") [0]),
+    (line.split(" ") [2])])).cache()
+trainingData.pprint()
+
+lines2 = ssc.textFileStream("file:///mnt/vdatanodea/
+datasets/creditcards/credit/c")
+testData = lines2.map(lambda line: 
+LabeledPoint( float(line.split(" ")[1]),
+[ (line.split(" ") [0]) , 
+(line.split(" ") [2]) ])).cache()
+testData.pprint()
+
+def handle_rdd(rdd):
+    for r in rdd.collect():
+        print( r.map(lambda p: (p.label, 
+        	p.features, lr.predict(p.features))) )
+
+labelsAndPreds = 
+		testData.transform(lambda rdd: handle_rdd)
+labelsAndPreds.pprint()
+ssc.start() 
+\end{lstlisting}
+
+An ideal application of Spark Streaming would be to make predictions the moment a credit card is used, allowing users to immediately tag potential credit card fraud and address it in a timely fashion. The real world applications for Spark Streaming gives it a huge advantage in the real world. The only disadvantage to this approach is that one can't perform functions on the entire set of data (ie. sort) since there is only access to a certain portion of the dataset at a given time. As a result, depending on the type of computation needed, Spark Streaming may or may not be useful. When it comes to detecting credit card fraud in real time though, it can be extremely useful.  
+
+\section{Analysis}
+We did two levels of analysis: comparing different machine learning algorithms to train credit card fraud data and with Spark and Spark Streaming. 
+
+The data from the Logistic Regression did show that the model could be trained to predict fraud cases accurately enough that it could be applied to live data through Spark Streaming. This opened up many real world applications as there is a vast amount of credit card data that needs to be tagged in real time in order to prevent fraud. If computations result in alarming false positive or false negative rates, efforts may be wasted as a result: a high false positive rate may lead to too many investigations and a high false negative rate means that fraud cases aren't being tagged, meaning that both error rates can have significant implications. Spark Streaming, with an accurate machine learning model, would allow the right credit cards to be tagged in real time, which would allow companies to close credit cards and minimize damages. 
+
+The Spark Streaming research showed that we could train the model using our current set and then turn the test data into a stream to make predictions. The test data can be replaced with real data, and as more data is gathered the model can be retrained. The research presented demonstrates how to accomplish Spark Streaming with credit card data and how Spark Streaming is more efficient in making predictions. 
+
+
+\section{Conclusion}
+
+Through this exploration of many Spark MLlib classifiers and Spark Streaming, we were able to find an effective model for the dataset of credit card data, which is more or less representative of all anonymized credit card data. The analysis and conclusions tied together the fundamental concepts of each model with the observed results, allowing for a deeper understanding of each model and an intuition of the pipeline processes for Spark and Spark Streaming. Usages of this research include further credit card data research and learning about other imbalanced datasets, live or static, applicable to the current intersection of data science and machine learning at large. 
+
+\section{Acknowledgements}
+We thank Professor Robert J. Brunner and the National Center for Supercomputing Applications for providing resources to run our scripts on large amounts of data and Quinn Jarrell for guiding advice and technical support. 
+
+\bibliographystyle{plainnat}
+\bibliography{biblio}
+% \t 
+% 1. Andrea Dal Pozzolo, Olivier Caelen, Reid A. Johnson and Gianluca Bontempi. Calibrating Probability with Undersampling for Unbalanced Classification. In Symposium on Computational Intelligence and Data Mining (CIDM), IEEE, 2015
+
+% 2. "Apache Spark Streaming." Apache Spark Streaming | MapR. Accessed May 01, 2017. https://mapr.com/products/product-overview/apache-spark-streaming/.
+
+% 3. Classification and regression. (n.d.). Retrieved May 02, 2017, from https://spark.apache.org/docs/2.1.0/ml-classification-regression.html
+
+% 4. Diving into Apache Spark Streaming's Execution Model. (2016, October 27). Retrieved May 01, 2017, from https://databricks.com/blog/2015/07/30/diving-into-apache-spark-streamings-execution-model.html
+
+% 5. Evaluation Metrics - RDD-based API. (n.d.). Retrieved May 02, 2017, from https://spark.apache.org/docs/2.1.0/mllib-evaluation-metrics.html
+
+% 6. McDonald, Carol. "Real Time Credit Card Fraud Detection with Apache Spark and Event Streaming." Real Time Credit Card Fraud Detection with Apache Spark and Event Streaming | MapR. MAPR, 3 May 2016. Web. 04 Apr. 2017. <https://mapr.com/blog/real-time-credit-card-fraud-detection-apache-spark-and-event-streaming/>.
+
+
+
+
+
+% Old. "Spark Overview." Overview - Spark 2.1.0 Documentation. N.p., n.d. Web. 13 Apr. 2017.
+
+% Old. McDonald, Carol. "Real Time Credit Card Fraud Detection with Apache Spark and Event Streaming." Real Time Credit Card Fraud Detection with Apache Spark and Event Streaming | MapR. MAPR, 3 May 2016. Web. 30 Mar. 2017. <https://mapr.com/blog/real-time-credit-card-fraud-detection-apache-spark-and-event-streaming/>.
+
+% Old. Vogiatzis, Michael. "Using Spark for Anomaly (Fraud) Detection." Michael Vogiatzis. N.p., 21 May 2016. Web. 30 Mar. 2017. <https://micvog.com/2016/05/21/using-spark-for-anomaly-fraud-detection/>.
+
+% Old."Linear Methods - RDD-based API." Linear Methods - RDD-based API - Spark 2.0.2 Documentation. Apache, n.d. Web. 13 Apr. 2017. <https://spark.apache.org/docs/2.0.2/mllib-linear-methods.htmllinear-support-vector-machines-svms>.
+
+% Old. "Linear Methods - RDD-based API." Linear Methods - RDD-based API - Spark 2.0.2 Documentation. Apache, n.d. Web. 13 Apr. 2017. <https://spark.apache.org/docs/2.0.2/mllib-linear-methods.htmllogistic-regression>.
+
+
+% 5. "Linear Methods - RDD-based API." Linear Methods - RDD-based API - Spark 2.0.2 Documentation. Apache, n.d. Web. 13 Apr. 2017. <https://spark.apache.org/docs/2.0.2/mllib-linear-methods.htmllogistic-regression>.
+
+% 6. https://mapr.com/blog/real-time-credit-card-fraud-detection-apache-spark-and-event-streaming/
+
+
+
+\end{document}
